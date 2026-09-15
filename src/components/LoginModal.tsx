@@ -228,6 +228,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                       className="w-full pl-10 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition text-slate-900"
                     />
                   </div>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Default facility key for all dispensaries: <code className="bg-slate-100 text-emerald-700 px-1 py-0.5 rounded font-mono font-semibold">ayush@123</code>
+                  </p>
                 </div>
 
                 <button
@@ -269,7 +272,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                   <p className="mt-1 text-xs text-slate-500">
                     Default master key: <code className="bg-slate-100 text-emerald-700 px-1 py-0.5 rounded font-mono font-semibold">admin@123</code>
                   </p>
-
                 </div>
 
                 <button
@@ -324,7 +326,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                     Password: <span className="text-white font-bold">admin@123</span>
                   </div>
                 </div>
-
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition" />
               </div>
 
@@ -342,7 +343,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                     Ayurvedic Hospital, Tilak Road
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    Password: <span className="text-white font-bold">ayush@dehradun1</span>
+                    Password: <span className="text-white font-bold">ayush@123</span>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition" />
@@ -362,7 +363,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                     Ayurvedic Hospital, Rishikesh
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    Password: <span className="text-white font-bold">ayush@rishi2</span>
+                    Password: <span className="text-white font-bold">ayush@123</span>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition" />
@@ -382,13 +383,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                     Ayurvedic Dispensary, Vikasnagar
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    Password: <span className="text-white font-bold">ayush@vikas3</span>
+                    Password: <span className="text-white font-bold">ayush@123</span>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition" />
               </div>
             </div>
           </div>
+
 
           {/* Anti-Sleep Free-Tier Info Badge */}
           <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-200">

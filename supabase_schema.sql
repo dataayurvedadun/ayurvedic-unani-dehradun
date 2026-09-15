@@ -117,22 +117,23 @@ CREATE POLICY "Allow public all on medicine_demands_responses" ON medicine_deman
 
 -- Seed Hospitals across Dehradun, Rishikesh, Chakrata, Vikasnagar, Doiwala, Mussoorie, Kalsi, Raipur, Sahaspur
 INSERT INTO hospitals_master (hospital_name, assigned_password, block_name) VALUES
-('District Ayurvedic Hospital, Tilak Road, Dehradun', 'ayush@dehradun1', 'Dehradun Sadar'),
-('Government Ayurvedic Hospital, Rishikesh', 'ayush@rishi2', 'Rishikesh'),
-('Government Ayurvedic Dispensary, Vikasnagar', 'ayush@vikas3', 'Vikasnagar'),
-('Government Ayurvedic Hospital, Chakrata', 'ayush@chak4', 'Chakrata'),
-('Government Ayurvedic Dispensary, Doiwala', 'ayush@doi5', 'Doiwala'),
-('Government Ayurvedic Dispensary, Sahaspur', 'ayush@sahas6', 'Sahaspur'),
-('Government Ayurvedic Dispensary, Kalsi', 'ayush@kalsi7', 'Kalsi'),
-('Government Ayurvedic Dispensary, Raipur', 'ayush@raipur8', 'Raipur'),
-('Government Ayurvedic Dispensary, Mussoorie', 'ayush@muss9', 'Mussoorie'),
-('Government Ayurvedic Dispensary, Premnagar', 'ayush@prem10', 'Sahaspur'),
-('Government Unani Dispensary, Dehradun City', 'unani@ddn11', 'Dehradun Sadar'),
-('Government Ayurvedic Dispensary, Tyuni', 'ayush@tyuni12', 'Chakrata'),
-('Government Ayurvedic Dispensary, Selaqui', 'ayush@selaqui13', 'Sahaspur'),
-('Government Ayurvedic Dispensary, Clement Town', 'ayush@clement14', 'Dehradun Sadar'),
-('Government Ayurvedic Dispensary, Bhogpur', 'ayush@bhogpur15', 'Doiwala')
-ON CONFLICT (hospital_name) DO NOTHING;
+('District Ayurvedic Hospital, Tilak Road, Dehradun', 'ayush@123', 'Dehradun Sadar'),
+('Government Ayurvedic Hospital, Rishikesh', 'ayush@123', 'Rishikesh'),
+('Government Ayurvedic Dispensary, Vikasnagar', 'ayush@123', 'Vikasnagar'),
+('Government Ayurvedic Hospital, Chakrata', 'ayush@123', 'Chakrata'),
+('Government Ayurvedic Dispensary, Doiwala', 'ayush@123', 'Doiwala'),
+('Government Ayurvedic Dispensary, Sahaspur', 'ayush@123', 'Sahaspur'),
+('Government Ayurvedic Dispensary, Kalsi', 'ayush@123', 'Kalsi'),
+('Government Ayurvedic Dispensary, Raipur', 'ayush@123', 'Raipur'),
+('Government Ayurvedic Dispensary, Mussoorie', 'ayush@123', 'Mussoorie'),
+('Government Ayurvedic Dispensary, Premnagar', 'ayush@123', 'Sahaspur'),
+('Government Unani Dispensary, Dehradun City', 'ayush@123', 'Dehradun Sadar'),
+('Government Ayurvedic Dispensary, Tyuni', 'ayush@123', 'Chakrata'),
+('Government Ayurvedic Dispensary, Selaqui', 'ayush@123', 'Sahaspur'),
+('Government Ayurvedic Dispensary, Clement Town', 'ayush@123', 'Dehradun Sadar'),
+('Government Ayurvedic Dispensary, Bhogpur', 'ayush@123', 'Doiwala')
+ON CONFLICT (hospital_name) DO UPDATE SET assigned_password = 'ayush@123';
+
 
 -- Seed Classical Medicines
 INSERT INTO admin_uploads (category, medicine_name, pack_size) VALUES

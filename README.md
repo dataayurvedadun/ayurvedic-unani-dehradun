@@ -75,22 +75,23 @@ Architected for **100% Free-Tier Deployment** on **Vercel** (Frontend & Serverle
 - **Master Password**: `admin@123`
 
 
-### Sample Pre-Configured Hospitals
+### Pre-Configured Hospitals (All set to `ayush@123`)
 | Hospital / Dispensary Name | Block | Assigned Password |
 | :--- | :--- | :--- |
-| District Ayurvedic Hospital, Tilak Road, Dehradun | Dehradun Sadar | `ayush@dehradun1` |
-| Government Ayurvedic Hospital, Rishikesh | Rishikesh | `ayush@rishi2` |
-| Government Ayurvedic Dispensary, Vikasnagar | Vikasnagar | `ayush@vikas3` |
-| Government Ayurvedic Hospital, Chakrata | Chakrata | `ayush@chak4` |
-| Government Ayurvedic Dispensary, Doiwala | Doiwala | `ayush@doi5` |
-| Government Ayurvedic Dispensary, Sahaspur | Sahaspur | `ayush@sahas6` |
-| Government Ayurvedic Dispensary, Kalsi | Kalsi | `ayush@kalsi7` |
-| Government Ayurvedic Dispensary, Raipur | Raipur | `ayush@raipur8` |
-| Government Ayurvedic Dispensary, Mussoorie | Mussoorie | `ayush@muss9` |
-| Government Ayurvedic Dispensary, Premnagar | Sahaspur | `ayush@prem10` |
-| Government Unani Dispensary, Dehradun City | Dehradun Sadar | `unani@ddn11` |
+| District Ayurvedic Hospital, Tilak Road, Dehradun | Dehradun Sadar | `ayush@123` |
+| Government Ayurvedic Hospital, Rishikesh | Rishikesh | `ayush@123` |
+| Government Ayurvedic Dispensary, Vikasnagar | Vikasnagar | `ayush@123` |
+| Government Ayurvedic Hospital, Chakrata | Chakrata | `ayush@123` |
+| Government Ayurvedic Dispensary, Doiwala | Doiwala | `ayush@123` |
+| Government Ayurvedic Dispensary, Sahaspur | Sahaspur | `ayush@123` |
+| Government Ayurvedic Dispensary, Kalsi | Kalsi | `ayush@123` |
+| Government Ayurvedic Dispensary, Raipur | Raipur | `ayush@123` |
+| Government Ayurvedic Dispensary, Mussoorie | Mussoorie | `ayush@123` |
+| Government Ayurvedic Dispensary, Premnagar | Sahaspur | `ayush@123` |
+| Government Unani Dispensary, Dehradun City | Dehradun Sadar | `ayush@123` |
 
-*(All passwords can be modified by the Administrator in the "Facilities & Passwords" tab).*
+*(All 15 facilities across Dehradun use the unified password `ayush@123`. The Administrator can modify or customize individual passwords at any time in the "Facilities & Passwords" tab).*
+
 
 ---
 
