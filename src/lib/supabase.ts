@@ -37,8 +37,7 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured()
 // Local Storage Keys for offline / demo mode fallback
 const STORAGE_KEYS = {
   HOSPITALS: 'ayush_ddn_hospitals_v3',
-
-  MEDICINES: 'ayush_ddn_medicines_v1',
+  MEDICINES: 'ayush_ddn_medicines_v2',
   FORMS: 'ayush_ddn_forms_v1',
   FORM_RESPONSES: 'ayush_ddn_form_responses_v1',
   MPR: 'ayush_ddn_mpr_v1',
@@ -177,6 +176,7 @@ export const dbService = {
         const { data, error } = await supabase
           .from('admin_uploads')
           .select('*')
+          .order('category', { ascending: true })
           .order('medicine_name', { ascending: true });
         if (!error && data && data.length > 0) return data as MedicineItem[];
       } catch (err) {
