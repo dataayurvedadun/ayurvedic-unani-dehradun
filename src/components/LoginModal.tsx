@@ -9,8 +9,6 @@ import {
   UserCheck,
   AlertCircle,
   CheckCircle2,
-  HelpCircle,
-  ChevronRight,
   ArrowRight,
   Sparkles,
   Lock,
@@ -36,15 +34,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
   // Status & Error handling
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [showCredentialsHelper, setShowCredentialsHelper] = useState<boolean>(true);
 
   useEffect(() => {
     dbService.getHospitals().then((list) => {
       setHospitals(list);
       if (list.length > 0) {
         setSelectedHospitalId(list[0].id);
-        // Pre-fill doctor name placeholder based on first hospital
-        setHospitalPassword(list[0].assigned_password);
       }
     });
   }, []);
@@ -52,10 +47,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
   const handleHospitalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const id = e.target.value;
     setSelectedHospitalId(id);
-    const selected = hospitals.find((h) => h.id === id);
-    if (selected) {
-      setHospitalPassword(selected.assigned_password);
-    }
+    setHospitalPassword('');
     setError(null);
   };
 
@@ -88,16 +80,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
       setError(err.message || 'An error occurred');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const fillQuickDoctorDemo = (name: string, doctorTitle: string) => {
-    const hosp = hospitals.find((h) => h.hospital_name.includes(name));
-    if (hosp) {
-      setSelectedHospitalId(hosp.id);
-      setHospitalPassword(hosp.assigned_password);
-      setOfficerName(doctorTitle);
-      setError(null);
     }
   };
 
@@ -230,7 +212,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                     />
                   </div>
                   <p className="mt-1 text-xs text-slate-500">
-                    Default facility key for all dispensaries: <code className="bg-slate-100 text-emerald-700 px-1 py-0.5 rounded font-mono font-semibold">ayush@123</code>
+                    Enter the assigned facility password provided by District Ayurvedic & Unani Office.
                   </p>
                 </div>
 
@@ -271,7 +253,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                     />
                   </div>
                   <p className="mt-1 text-xs text-slate-500">
-                    Default master key: <code className="bg-slate-100 text-emerald-700 px-1 py-0.5 rounded font-mono font-semibold">admin@123</code>
+                    Enter the district administrative master authorization key.
                   </p>
                 </div>
 
@@ -288,107 +270,55 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
           </div>
         </div>
 
-        {/* Right Column: Pre-Configured Credentials & Quick Demo Helpers */}
+        {/* Right Column: Official Guidelines & Security Notice */}
         <div className="lg:col-span-5 space-y-5">
-          {/* Quick Demo Credentials Assistant */}
           <div className="bg-gradient-to-br from-slate-900 to-emerald-950 text-white p-6 rounded-2xl shadow-xl border border-emerald-800/40">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <KeyRound className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-bold text-sm tracking-wide text-white uppercase">
-                  Pre-Configured Credentials
-                </h3>
-              </div>
-              <span className="text-[11px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">
-                1-Click Fill
-              </span>
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
+              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              <h3 className="font-bold text-sm tracking-wide text-white uppercase">
+                Official Access Guidelines
+              </h3>
             </div>
 
             <p className="text-xs text-slate-300 mt-3 leading-relaxed">
-              Use these pre-configured user credentials for instant testing of all roles:
+              This system is strictly reserved for authorized officers and staff of the Department of Ayurvedic and Unani Services, District Dehradun.
             </p>
 
-            <div className="mt-4 space-y-3">
-              {/* Admin Quick Fill */}
-              <div
-                onClick={() => {
-                  setActiveTab('admin');
-                  setAdminPassword('admin@123');
-                  setError(null);
-                }}
-                className="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 cursor-pointer transition flex items-center justify-between group"
-              >
+            <div className="mt-4 space-y-3 text-xs">
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/60 border border-slate-700/70">
+                <Building2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-xs font-semibold text-emerald-300 flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    District Admin (DAO Dehradun)
-                  </div>
-                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    Password: <span className="text-white font-bold">admin@123</span>
+                  <div className="font-semibold text-slate-100">Dispensary / Hospital Access</div>
+                  <div className="text-slate-300 text-[11px] mt-0.5 leading-relaxed">
+                    Select your facility from the dropdown, enter the attending Medical Officer name, and type your facility password.
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition" />
               </div>
 
-              {/* Hospital 1 Quick Fill */}
-              <div
-                onClick={() => {
-                  setActiveTab('hospital');
-                  fillQuickDoctorDemo('Sahastradhara', 'Dr. Ramesh Chandra (AMO)');
-                }}
-                className="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-teal-500/50 cursor-pointer transition flex items-center justify-between group"
-              >
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/60 border border-slate-700/70">
+                <Lock className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-xs font-semibold text-teal-300 flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-teal-400" />
-                    [DDN001] Sahastradhara Dispensary
-                  </div>
-                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    Password: <span className="text-white font-bold">ayush@123</span>
+                  <div className="font-semibold text-slate-100">Credential Confidentiality</div>
+                  <div className="text-slate-300 text-[11px] mt-0.5 leading-relaxed">
+                    Keep your facility login key confidential. Do not share credentials across unverified devices or unauthorized personnel.
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition" />
               </div>
 
-              {/* Hospital 2 Quick Fill */}
-              <div
-                onClick={() => {
-                  setActiveTab('hospital');
-                  fillQuickDoctorDemo('Rishikesh', 'Dr. Anjali Uniyal (Sr. MO)');
-                }}
-                className="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-teal-500/50 cursor-pointer transition flex items-center justify-between group"
-              >
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/60 border border-slate-700/70">
+                <UserCheck className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-xs font-semibold text-teal-300 flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-teal-400" />
-                    [DDN035] Rishikesh Dispensary
-                  </div>
-                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    Password: <span className="text-white font-bold">ayush@123</span>
+                  <div className="font-semibold text-slate-100">Digital Audit Trail</div>
+                  <div className="text-slate-300 text-[11px] mt-0.5 leading-relaxed">
+                    Every submitted MPR report and medicine demand list is permanently stamped with the officer's name and submission timestamp.
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition" />
               </div>
+            </div>
 
-              {/* Hospital 3 Quick Fill */}
-              <div
-                onClick={() => {
-                  setActiveTab('hospital');
-                  fillQuickDoctorDemo('Doiwala', 'Dr. Vikram Rawat (MO)');
-                }}
-                className="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-teal-500/50 cursor-pointer transition flex items-center justify-between group"
-              >
-                <div>
-                  <div className="text-xs font-semibold text-teal-300 flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-teal-400" />
-                    [DDN081] Doiwala CHC / Ayush Wing
-                  </div>
-                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    Password: <span className="text-white font-bold">ayush@123</span>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition" />
-              </div>
+            <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
+              <span>District Office, Dehradun</span>
+              <span className="text-emerald-400 font-semibold">Govt. of Uttarakhand</span>
             </div>
           </div>
 
