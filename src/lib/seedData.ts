@@ -1,4 +1,4 @@
-import { HospitalMaster, MedicineItem, DynamicForm, MonthlyProgressReport, MedicineDemandResponse, ActivityLog } from '../types';
+import { HospitalMaster, MedicineItem, DynamicForm, MonthlyProgressReport, MedicineDemandResponse, ActivityLog, MedicineDemandDrive } from '../types';
 
 export const INITIAL_HOSPITALS: HospitalMaster[] = [
   { id: 'DDN001', hospital_name: 'Sahastradhara', category: 'State Ayurvedic Dispensary', block_name: 'State Ayurvedic Dispensary', uid: 'DDN001', assigned_password: 'ayush@123' },
@@ -187,3 +187,17 @@ export const INITIAL_MPR_REPORTS: MonthlyProgressReport[] = [];
 export const INITIAL_DEMANDS: MedicineDemandResponse[] = [];
 
 export const INITIAL_ACTIVITY_LOGS: ActivityLog[] = [];
+ 
+export const INITIAL_DEMAND_DRIVES: MedicineDemandDrive[] = [
+  {
+    id: 'drive-patent-list-1',
+    title: 'Patent Medicine List 1',
+    category: 'Patent Medicine',
+    batch_year: '2026-2027',
+    due_date: '2026-09-30',
+    is_active: true,
+    description: 'Official requisition drive for 84 Patent Medicine formulations across District Dehradun health facilities.',
+    medicines: INITIAL_MEDICINES,
+    created_at: '2026-09-15T06:00:00Z',
+  },
+];

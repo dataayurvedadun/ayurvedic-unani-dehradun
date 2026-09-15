@@ -32,22 +32,28 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
   }, [selectedMonth]);
 
   const loadOverviewData = async () => {
-    const [allHosp, allDemands, allMpr] = await Promise.all([
+    const [allHosp, allDemands, allMpr, allDriveSubs] = await Promise.all([
       dbService.getHospitals(),
       dbService.getDemands(),
       dbService.getMprReports(undefined, selectedMonth),
+      dbService.getDriveSubmissions(),
     ]);
     setHospitals(allHosp);
     setDemands(allDemands);
     setMprReports(allMpr);
+
+    const submittedHospIds = new Set([
+      ...allDemands.map((d) => d.hospital_id),
+      ...allDriveSubs.map((s) => s.hospital_id),
+    ]);
+    setDemandSubmittedSet(submittedHospIds);
   };
+
+  const [demandSubmittedSet, setDemandSubmittedSet] = useState<Set<string>>(new Set());
 
   // Calculate Metrics
   const totalHospitals = hospitals.length;
-
-  // Set of hospital IDs that submitted demands
-  const hospitalsWithDemands = new Set(demands.map((d) => d.hospital_id));
-  const demandSubmittedCount = hospitals.filter((h) => hospitalsWithDemands.has(h.id)).length;
+  const demandSubmittedCount = hospitals.filter((h) => demandSubmittedSet.has(h.id)).length;
   const demandPercent = totalHospitals > 0 ? Math.round((demandSubmittedCount / totalHospitals) * 100) : 0;
 
   // MPR submitted count for selected month
@@ -61,7 +67,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
 
   // Filtered hospital status list
   const filteredHospitals = hospitals.filter((h) => {
-    const hasDemand = hospitalsWithDemands.has(h.id);
+    const hasDemand = demandSubmittedSet.has(h.id);
     const hasMpr = hospitalsWithMpr.has(h.id);
 
     const matchesSearch =

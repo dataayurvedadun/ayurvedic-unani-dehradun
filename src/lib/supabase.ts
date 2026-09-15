@@ -7,6 +7,8 @@ import {
   DynamicFormResponse,
   MedicineDemandResponse,
   ActivityLog,
+  MedicineDemandDrive,
+  MedicineDriveSubmission,
 } from '../types';
 import {
   INITIAL_HOSPITALS,
@@ -15,6 +17,7 @@ import {
   INITIAL_MPR_REPORTS,
   INITIAL_DEMANDS,
   INITIAL_ACTIVITY_LOGS,
+  INITIAL_DEMAND_DRIVES,
 } from './seedData';
 
 // Supabase Environment variables
@@ -43,6 +46,8 @@ const STORAGE_KEYS = {
   MPR: 'ayush_ddn_mpr_v2',
   DEMANDS: 'ayush_ddn_demands_v2',
   LOGS: 'ayush_ddn_logs_v2',
+  DEMAND_DRIVES: 'ayush_ddn_demand_drives_v1',
+  DRIVE_SUBMISSIONS: 'ayush_ddn_drive_submissions_v1',
 };
 
 // Local storage helpers
@@ -319,7 +324,7 @@ export const dbService = {
   async getDynamicForms(activeOnly: boolean = false): Promise<DynamicForm[]> {
     if (supabase) {
       try {
-        let query = supabase.from('dynamic_forms').select('*');
+        let query = supabase.from('dynamic_forms').select('*').not('form_title', 'like', '[DEMAND_DRIVE]%');
         if (activeOnly) query = query.eq('is_active', true);
         const { data, error } = await query.order('created_at', { ascending: false });
         if (!error && data && data.length > 0) return data as DynamicForm[];
@@ -327,7 +332,8 @@ export const dbService = {
         console.warn('Supabase getDynamicForms failed', err);
       }
     }
-    const forms = getLocal<DynamicForm[]>(STORAGE_KEYS.FORMS, INITIAL_DYNAMIC_FORMS);
+    const forms = getLocal<DynamicForm[]>(STORAGE_KEYS.FORMS, INITIAL_DYNAMIC_FORMS)
+      .filter((f) => !f.form_title?.startsWith('[DEMAND_DRIVE]'));
     return activeOnly ? forms.filter((f) => f.is_active) : forms;
   },
 
@@ -430,5 +436,187 @@ export const dbService = {
     const current = await this.getActivityLogs();
     const updated = [newLog, ...current].slice(0, 100); // keep last 100
     setLocal(STORAGE_KEYS.LOGS, updated);
+  },
+
+  // ==================== MEDICINE DEMAND DRIVES (LIST-WISE CAMPAIGNS) ====================
+  async getDemandDrives(activeOnly: boolean = false): Promise<MedicineDemandDrive[]> {
+    if (supabase) {
+      try {
+        let query = supabase
+          .from('dynamic_forms')
+          .select('*')
+          .like('form_title', '[DEMAND_DRIVE]%');
+        if (activeOnly) query = query.eq('is_active', true);
+        const { data, error } = await query.order('created_at', { ascending: false });
+        if (!error && data && data.length > 0) {
+          return data.map((row: any) => {
+            let meta: any = {};
+            try {
+              meta = JSON.parse(row.description || '{}');
+            } catch {
+              meta = {};
+            }
+            return {
+              id: row.id,
+              title: row.form_title.replace('[DEMAND_DRIVE] ', ''),
+              category: meta.category || 'Patent Medicine',
+              batch_year: meta.batch_year || '2026-2027',
+              due_date: meta.due_date || '',
+              description: meta.description || '',
+              is_active: Boolean(row.is_active),
+              medicines: Array.isArray(row.form_fields) ? row.form_fields : [],
+              created_at: row.created_at,
+            } as MedicineDemandDrive;
+          });
+        }
+      } catch (err) {
+        console.warn('Supabase getDemandDrives failed', err);
+      }
+    }
+    const drives = getLocal<MedicineDemandDrive[]>(STORAGE_KEYS.DEMAND_DRIVES, INITIAL_DEMAND_DRIVES);
+    return activeOnly ? drives.filter((d) => d.is_active) : drives;
+  },
+
+  async createDemandDrive(
+    drive: Omit<MedicineDemandDrive, 'id' | 'created_at'>
+  ): Promise<MedicineDemandDrive> {
+    const newDrive: MedicineDemandDrive = {
+      ...drive,
+      id: 'drive-' + Math.random().toString(36).substring(2, 9),
+      created_at: new Date().toISOString(),
+    };
+
+    if (supabase) {
+      try {
+        const payload = {
+          form_title: `[DEMAND_DRIVE] ${drive.title}`,
+          description: JSON.stringify({
+            type: 'medicine_drive',
+            category: drive.category,
+            batch_year: drive.batch_year,
+            due_date: drive.due_date,
+            description: drive.description || '',
+          }),
+          form_fields: drive.medicines,
+          is_active: drive.is_active,
+        };
+
+        const { data, error } = await supabase
+          .from('dynamic_forms')
+          .insert([payload])
+          .select()
+          .single();
+
+        if (!error && data) {
+          return {
+            id: data.id,
+            title: drive.title,
+            category: drive.category,
+            batch_year: drive.batch_year,
+            due_date: drive.due_date,
+            description: drive.description || '',
+            is_active: data.is_active,
+            medicines: drive.medicines,
+            created_at: data.created_at,
+          };
+        }
+      } catch (err) {
+        console.warn('Supabase createDemandDrive failed', err);
+      }
+    }
+
+    const current = await this.getDemandDrives();
+    const updated = [newDrive, ...current];
+    setLocal(STORAGE_KEYS.DEMAND_DRIVES, updated);
+    return newDrive;
+  },
+
+  async toggleDemandDriveStatus(id: string, isActive: boolean): Promise<boolean> {
+    if (supabase) {
+      try {
+        await supabase.from('dynamic_forms').update({ is_active: isActive }).eq('id', id);
+      } catch (err) {
+        console.warn('Supabase toggleDemandDriveStatus failed', err);
+      }
+    }
+    const current = await this.getDemandDrives();
+    const updated = current.map((d) => (d.id === id ? { ...d, is_active: isActive } : d));
+    setLocal(STORAGE_KEYS.DEMAND_DRIVES, updated);
+    return true;
+  },
+
+  async submitDriveDemand(
+    submission: Omit<MedicineDriveSubmission, 'id' | 'submitted_at'>
+  ): Promise<MedicineDriveSubmission> {
+    const timestamp = new Date().toISOString();
+    const newSubmission: MedicineDriveSubmission = {
+      ...submission,
+      id: 'sub-' + Math.random().toString(36).substring(2, 9),
+      submitted_at: timestamp,
+    };
+
+    if (supabase) {
+      try {
+        await supabase.from('dynamic_form_responses').insert([
+          {
+            form_id: submission.drive_id,
+            hospital_id: submission.hospital_id,
+            hospital_name: submission.hospital_name,
+            officer_name: submission.officer_name,
+            response_data: {
+              type: 'medicine_drive_submission',
+              drive_title: submission.drive_title,
+              quantities: submission.quantities,
+              total_varieties: submission.total_varieties,
+              total_units: submission.total_units,
+            },
+            submitted_at: timestamp,
+          },
+        ]);
+      } catch (err) {
+        console.warn('Supabase submitDriveDemand response insert failed', err);
+      }
+    }
+
+    const currentSubs = getLocal<MedicineDriveSubmission[]>(STORAGE_KEYS.DRIVE_SUBMISSIONS, []);
+    const filteredSubs = currentSubs.filter(
+      (s) => !(s.drive_id === submission.drive_id && s.hospital_id === submission.hospital_id)
+    );
+    setLocal(STORAGE_KEYS.DRIVE_SUBMISSIONS, [newSubmission, ...filteredSubs]);
+    return newSubmission;
+  },
+
+  async getDriveSubmissions(driveId?: string, hospitalId?: string): Promise<MedicineDriveSubmission[]> {
+    if (supabase) {
+      try {
+        let query = supabase.from('dynamic_form_responses').select('*');
+        if (driveId) query = query.eq('form_id', driveId);
+        if (hospitalId) query = query.eq('hospital_id', hospitalId);
+        const { data, error } = await query.order('submitted_at', { ascending: false });
+        if (!error && data && data.length > 0) {
+          return data
+            .filter((row: any) => row.response_data?.type === 'medicine_drive_submission')
+            .map((row: any) => ({
+              id: row.id,
+              drive_id: row.form_id,
+              drive_title: row.response_data?.drive_title || 'Medicine Demand List',
+              hospital_id: row.hospital_id,
+              hospital_name: row.hospital_name,
+              officer_name: row.officer_name,
+              quantities: row.response_data?.quantities || {},
+              total_varieties: row.response_data?.total_varieties || 0,
+              total_units: row.response_data?.total_units || 0,
+              submitted_at: row.submitted_at,
+            }));
+        }
+      } catch (err) {
+        console.warn('Supabase getDriveSubmissions failed', err);
+      }
+    }
+
+    let allSubs = getLocal<MedicineDriveSubmission[]>(STORAGE_KEYS.DRIVE_SUBMISSIONS, []);
+    if (driveId) allSubs = allSubs.filter((s) => s.drive_id === driveId);
+    if (hospitalId) allSubs = allSubs.filter((s) => s.hospital_id === hospitalId);
+    return allSubs;
   },
 };

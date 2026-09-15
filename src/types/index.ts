@@ -79,8 +79,41 @@ export interface DynamicFormResponse {
   submitted_at: string;
 }
 
+export interface MedicineDriveItem {
+  id: string;
+  medicine_name: string;
+  pack_size: string;
+  category: MedicineCategory;
+}
+
+export interface MedicineDemandDrive {
+  id: string;
+  title: string; // e.g. "Patent Medicine List 1"
+  category: 'Patent Medicine' | 'Classical Medicine' | 'All';
+  batch_year: string; // e.g. "2026-2027"
+  due_date: string; // e.g. "2026-09-30"
+  is_active: boolean; // active for hospital submissions
+  description?: string;
+  medicines: MedicineDriveItem[];
+  created_at: string;
+}
+
+export interface MedicineDriveSubmission {
+  id: string;
+  drive_id: string;
+  drive_title: string;
+  hospital_id: string;
+  hospital_name: string;
+  officer_name: string;
+  quantities: Record<string, number>; // medicine_id -> quantity
+  total_varieties: number;
+  total_units: number;
+  submitted_at: string;
+}
+
 export interface MedicineDemandResponse {
   id: string;
+  drive_id?: string;
   hospital_id: string;
   hospital_name: string;
   medicine_id: string;

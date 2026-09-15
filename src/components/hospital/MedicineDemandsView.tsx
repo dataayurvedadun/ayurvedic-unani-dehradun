@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { dbService } from '../../lib/supabase';
-import { MedicineItem, MedicineDemandResponse } from '../../types';
+import { MedicineDemandDrive, MedicineDriveSubmission } from '../../types';
 import confetti from 'canvas-confetti';
 import {
   Pill,
   Search,
-  Filter,
   CheckCircle2,
   Clock,
   Printer,
   Edit3,
   AlertCircle,
-  FileSpreadsheet,
   Building2,
   Calendar,
-  UserCheck,
   Send,
+  Sparkles,
 } from 'lucide-react';
 
 export const MedicineDemandsView: React.FC = () => {
@@ -24,45 +22,67 @@ export const MedicineDemandsView: React.FC = () => {
   const hospital = session?.hospital;
   const officerName = session?.officerName || 'Medical Officer In-Charge';
 
-  const [medicines, setMedicines] = useState<MedicineItem[]>([]);
-  const [demands, setDemands] = useState<MedicineDemandResponse[]>([]);
+  const [drives, setDrives] = useState<MedicineDemandDrive[]>([]);
+  const [selectedDriveId, setSelectedDriveId] = useState<string>('');
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('All');
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [lastSubmissionTime, setLastSubmissionTime] = useState<string | null>(null);
+  const [submissionRecord, setSubmissionRecord] = useState<MedicineDriveSubmission | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
 
-  const BATCH_YEAR = '2026-2027';
-
   useEffect(() => {
-    loadData();
+    loadDrivesAndDemands();
   }, [hospital?.id]);
 
-  const loadData = async () => {
+  const loadDrivesAndDemands = async () => {
     if (!hospital) return;
-    const [allMeds, existingDemands] = await Promise.all([
-      dbService.getMedicines(),
-      dbService.getDemands(hospital.id),
-    ]);
+    const allDrives = await dbService.getDemandDrives();
+    // Only show active drives, or all if none active
+    const visibleDrives = allDrives.filter((d) => d.is_active);
+    const driveList = visibleDrives.length > 0 ? visibleDrives : allDrives;
 
-    setMedicines(allMeds);
-    setDemands(existingDemands);
+    setDrives(driveList);
 
-    const qtyMap: Record<string, number> = {};
-    existingDemands.forEach((d) => {
-      qtyMap[d.medicine_id] = d.requested_quantity;
-    });
-    setQuantities(qtyMap);
+    if (driveList.length > 0) {
+      const initialId = driveList[0].id;
+      setSelectedDriveId(initialId);
+      loadHospitalSubmission(initialId, driveList[0]);
+    }
+  };
 
-    if (existingDemands.length > 0) {
-      setLastSubmissionTime(existingDemands[0].submitted_at);
+  const loadHospitalSubmission = async (driveId: string, driveObj?: MedicineDemandDrive) => {
+    if (!hospital) return;
+    const activeDrive = driveObj || drives.find((d) => d.id === driveId);
+    const subs = await dbService.getDriveSubmissions(driveId, hospital.id);
+
+    if (subs && subs.length > 0) {
+      const latestSub = subs[0];
+      setSubmissionRecord(latestSub);
+      setQuantities(latestSub.quantities || {});
       setIsEditing(false);
     } else {
+      setSubmissionRecord(null);
+      // Initialize zero quantities
+      const initialQty: Record<string, number> = {};
+      if (activeDrive && activeDrive.medicines) {
+        activeDrive.medicines.forEach((m) => {
+          initialQty[m.id] = 0;
+        });
+      }
+      setQuantities(initialQty);
       setIsEditing(true);
     }
   };
+
+  const handleSelectDrive = (driveId: string) => {
+    setSelectedDriveId(driveId);
+    const targetDrive = drives.find((d) => d.id === driveId);
+    loadHospitalSubmission(driveId, targetDrive);
+    setSearchTerm('');
+  };
+
+  const currentDrive = drives.find((d) => d.id === selectedDriveId) || drives[0];
 
   const handleQtyChange = (medicineId: string, value: string) => {
     const val = parseInt(value, 10);
@@ -74,55 +94,56 @@ export const MedicineDemandsView: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hospital) return;
+    if (!hospital || !currentDrive) return;
 
-    // Filter out items with quantity > 0
-    const itemsToSubmit: MedicineDemandResponse[] = [];
-    const submissionTimestamp = new Date().toISOString();
+    // Filter quantities > 0
+    let totalUnits = 0;
+    let totalVarieties = 0;
+    const cleanedQty: Record<string, number> = {};
 
-    medicines.forEach((med) => {
-      const qty = quantities[med.id] || 0;
-      if (qty > 0) {
-        itemsToSubmit.push({
-          id: 'dem-' + Math.random().toString(36).substring(2, 9),
-          hospital_id: hospital.id,
-          hospital_name: hospital.hospital_name,
-          medicine_id: med.id,
-          medicine_name: med.medicine_name,
-          category: med.category,
-          pack_size: med.pack_size,
-          requested_quantity: qty,
-          officer_name: officerName,
-          status: 'Submitted',
-          batch_year: BATCH_YEAR,
-          submitted_at: submissionTimestamp,
-        });
+    Object.entries(quantities).forEach(([medId, q]) => {
+      if (q > 0) {
+        cleanedQty[medId] = q;
+        totalUnits += q;
+        totalVarieties += 1;
       }
     });
 
-    if (itemsToSubmit.length === 0) {
+    if (totalVarieties === 0) {
       setNotification('Please enter required quantities for at least one medicine before submitting.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await dbService.submitDemands(itemsToSubmit);
+      const sub = await dbService.submitDriveDemand({
+        drive_id: currentDrive.id,
+        drive_title: currentDrive.title,
+        hospital_id: hospital.id,
+        hospital_name: hospital.hospital_name,
+        officer_name: officerName,
+        quantities: cleanedQty,
+        total_varieties: totalVarieties,
+        total_units: totalUnits,
+      });
+
       await dbService.addActivityLog({
         action: 'Medicine Demands Submitted',
-        details: `Submitted demand for ${itemsToSubmit.length} items (${itemsToSubmit.reduce(
-          (a, b) => a + b.requested_quantity,
-          0
-        )} total units)`,
+        details: `Submitted demand for "${currentDrive.title}" (${totalVarieties} varieties, ${totalUnits} units)`,
         user: `${hospital.hospital_name} (${officerName})`,
-        timestamp: submissionTimestamp,
+        timestamp: sub.submitted_at,
         category: 'medicine',
       });
 
-      setDemands(itemsToSubmit);
-      setLastSubmissionTime(submissionTimestamp);
+      setSubmissionRecord(sub);
       setIsEditing(false);
-      setNotification('Medicine Demands successfully submitted and recorded in central district registry!');
+      setNotification(
+        `Medicine Demands for "${currentDrive.title}" successfully submitted and officially recorded on ${new Date(
+          sub.submitted_at
+        ).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} at ${new Date(
+          sub.submitted_at
+        ).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}!`
+      );
 
       // Celebration confetti
       try {
@@ -132,7 +153,7 @@ export const MedicineDemandsView: React.FC = () => {
           origin: { y: 0.6 },
         });
       } catch (err) {
-        // confetti is optional
+        // optional
       }
     } catch (err: any) {
       setNotification(`Failed to submit demands: ${err.message}`);
@@ -145,22 +166,32 @@ export const MedicineDemandsView: React.FC = () => {
     window.print();
   };
 
-  // Filtered medicines
-  const filteredMeds = medicines.filter((med) => {
-    const matchesCategory = categoryFilter === 'All' || med.category === categoryFilter;
-    const matchesSearch = med.medicine_name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Filtered medicines in current drive
+  const filteredMeds = (currentDrive?.medicines || []).filter((med) =>
+    med.medicine_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const isSubmitted = demands.length > 0;
   const totalItemsDemanded = Object.values(quantities).filter((q) => q > 0).length;
   const totalUnitsDemanded = Object.values(quantities).reduce((acc, q) => acc + (q || 0), 0);
+  const isSubmitted = Boolean(submissionRecord);
+
+  if (!currentDrive) {
+    return (
+      <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
+        <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
+        <h3 className="text-lg font-bold text-slate-800">No Active Medicine Requisition Drives</h3>
+        <p className="text-sm text-slate-500 max-w-md mx-auto mt-1">
+          The District Ayurvedic Office has not published an active demand list at this moment. Please check back shortly or contact the administrative office.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Top Notification Banner */}
       {notification && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm flex items-center justify-between no-print">
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm flex items-center justify-between no-print shadow-xs">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <span>{notification}</span>
@@ -174,93 +205,151 @@ export const MedicineDemandsView: React.FC = () => {
         </div>
       )}
 
-      {/* Header Status Card */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Demand Drives Selector Header */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span className="text-xs font-bold tracking-wider uppercase text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-              Annual Medicine Indent • {BATCH_YEAR}
+              Annual Medicine Indent
             </span>
-            {isSubmitted ? (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Submitted
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">
-                <Clock className="w-3.5 h-3.5" />
-                Pending Submission
+            <span
+              className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
+                currentDrive.is_active
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                  : 'bg-slate-100 text-slate-600 border-slate-300'
+              }`}
+            >
+              {currentDrive.is_active ? '● Active Requisition' : 'Closed'}
+            </span>
+            {currentDrive.due_date && (
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-blue-600" />
+                Due Date: {new Date(currentDrive.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
               </span>
             )}
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-            Medicine Indent & Demand Requisition
+          <h2 className="text-2xl font-bold text-slate-900">
+            {currentDrive.title}
           </h2>
-          <p className="text-sm text-slate-600 mt-1">
-            Hospital: <span className="font-semibold text-slate-800">{hospital?.hospital_name}</span> | Submitting Officer:{' '}
-            <span className="font-semibold text-slate-800">{officerName}</span>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {currentDrive.description || 'Enter required units based on average patient footfall.'}
           </p>
-          {lastSubmissionTime && (
-            <p className="text-xs text-slate-500 mt-0.5">
-              Last submitted on: {new Date(lastSubmissionTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
-            </p>
-          )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 flex-wrap no-print">
-          {isSubmitted && !isEditing && (
-            <>
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold transition cursor-pointer shadow-sm"
-              >
-                <Printer className="w-4 h-4" />
-                Print Requisition Slip
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition cursor-pointer shadow-sm"
-              >
-                <Edit3 className="w-4 h-4" />
-                Modify Quantities
-              </button>
-            </>
+        {/* Action buttons */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {isSubmitted && (
+            <button
+              onClick={handlePrint}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition border border-slate-200 cursor-pointer"
+            >
+              <Printer className="w-4 h-4 text-slate-600" />
+              <span>Print Acknowledgment</span>
+            </button>
           )}
 
-          {isEditing && (
+          {isSubmitted && !isEditing && currentDrive.is_active && (
             <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer shadow-md disabled:opacity-60"
+              onClick={() => setIsEditing(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow cursor-pointer"
             >
-              <Send className="w-4 h-4" />
-              <span>{isSubmitting ? 'Saving...' : 'Finalize & Submit Demand'}</span>
+              <Edit3 className="w-4 h-4" />
+              <span>Edit / Update Demands</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Summary KPI Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {/* Demand Drives Tab Selector (If multiple drives exist) */}
+      {drives.length > 1 && (
+        <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-2 overflow-x-auto no-print">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider px-2 whitespace-nowrap">
+            Select Demand List:
+          </span>
+          {drives.map((d) => (
+            <button
+              key={d.id}
+              onClick={() => handleSelectDrive(d.id)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+                selectedDriveId === d.id
+                  ? 'bg-emerald-700 text-white shadow'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${d.is_active ? 'bg-emerald-400' : 'bg-slate-400'}`}></span>
+              <span>{d.title}</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-md ${
+                  selectedDriveId === d.id ? 'bg-emerald-800 text-emerald-200' : 'bg-slate-200 text-slate-600'
+                }`}
+              >
+                {d.medicines?.length || 0} items
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Submission Status Alert Banner */}
+      {isSubmitted ? (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-emerald-700" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                Requisition Submitted & Locked in District Registry
+              </div>
+              <div className="text-sm font-semibold text-emerald-950">
+                Submitted on{' '}
+                {new Date(submissionRecord!.submitted_at).toLocaleDateString('en-IN', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}{' '}
+                at{' '}
+                {new Date(submissionRecord!.submitted_at).toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </div>
+              <div className="text-xs text-emerald-700">
+                Verified by Medical Officer: <strong>{submissionRecord!.officer_name}</strong> • Total Units Demanded:{' '}
+                <strong>{submissionRecord!.total_units} units</strong> across{' '}
+                <strong>{submissionRecord!.total_varieties} varieties</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-950 flex items-center gap-3 shadow-xs">
+          <Clock className="w-5 h-5 text-amber-600 flex-shrink-0" />
+          <div className="text-xs">
+            <strong className="text-amber-900 font-bold uppercase tracking-wider block">
+              Demand Requisition Pending for {currentDrive.title}
+            </strong>
+            Enter the required quantity for each medicine in this list and click <strong>"Submit Medicine Demands"</strong> before the due date ({currentDrive.due_date ? new Date(currentDrive.due_date).toLocaleDateString('en-IN') : 'announced deadline'}).
+          </div>
+        </div>
+      )}
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 no-print">
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div className="text-xs text-slate-500 font-medium">Catalog Available</div>
-          <div className="text-xl font-bold text-slate-900 mt-1">{medicines.length} Medicines</div>
-          <div className="text-[11px] text-slate-400 mt-0.5">Classical & Patent</div>
+          <div className="text-xs text-slate-500 font-medium">Medicines in List</div>
+          <div className="text-2xl font-bold text-slate-900 mt-1">{currentDrive.medicines?.length || 0}</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">{currentDrive.category}</div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 font-medium">Demanded Items</div>
-          <div className="text-xl font-bold text-emerald-700 mt-1">{totalItemsDemanded} Varieties</div>
+          <div className="text-2xl font-bold text-emerald-700 mt-1">{totalItemsDemanded} Varieties</div>
           <div className="text-[11px] text-slate-400 mt-0.5">Selected by facility</div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 font-medium">Total Quantity</div>
-          <div className="text-xl font-bold text-teal-700 mt-1">{totalUnitsDemanded.toLocaleString()} Units</div>
-          <div className="text-[11px] text-slate-400 mt-0.5">Bottles / Packs / Jars</div>
+          <div className="text-2xl font-bold text-teal-700 mt-1">{totalUnitsDemanded.toLocaleString()} Units</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">Packs / Jars / Bottles</div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 font-medium">Portal Status</div>
@@ -268,67 +357,54 @@ export const MedicineDemandsView: React.FC = () => {
             {isEditing ? (
               <span className="text-amber-600">Editing</span>
             ) : isSubmitted ? (
-              <span className="text-emerald-600">Locked / Saved</span>
+              <span className="text-emerald-600">Saved</span>
             ) : (
               <span className="text-slate-600">Draft</span>
             )}
           </div>
-          <div className="text-[11px] text-slate-400 mt-0.5">District Registry</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">{currentDrive.batch_year} Batch</div>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
-        {/* Search */}
+      {/* Search Bar */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between no-print">
         <div className="relative w-full sm:w-80">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-            <Search className="w-4 h-4" />
-          </div>
+          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search medicine by name..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white text-slate-900 font-medium"
+            placeholder={`Search ${currentDrive.title}...`}
+            className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-900 font-medium"
           />
         </div>
-
-        {/* Category Tabs */}
-        <div className="flex items-center gap-1.5 w-full sm:w-auto">
-          {['All', 'Classical Medicine', 'Patent Medicine'].map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setCategoryFilter(cat)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                categoryFilter === cat
-                  ? 'bg-emerald-700 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="text-xs text-slate-500">
+          Showing: <strong className="text-slate-800">{filteredMeds.length}</strong> of {currentDrive.medicines?.length || 0}
         </div>
       </div>
 
-      {/* Official Print Header (Only visible when printing) */}
+      {/* Printable Header (Visible only when printing) */}
       <div className="hidden print-only mb-6 border-b-2 border-slate-800 pb-4 text-center">
         <h1 className="text-xl font-bold uppercase tracking-wider text-slate-900">
           Office of the District Ayurvedic & Unani Officer, Dehradun
         </h1>
         <h2 className="text-sm font-semibold text-slate-700 mt-1">
-          Annual Medicine Indent / Demand Requisition Slip ({BATCH_YEAR})
+          Official Requisition Form: {currentDrive.title} ({currentDrive.batch_year})
         </h2>
-        <div className="mt-3 text-xs text-slate-600 flex justify-between">
-          <span>Facility: <strong>{hospital?.hospital_name}</strong></span>
-          <span>Block: <strong>{hospital?.block_name}</strong></span>
-          <span>Officer: <strong>{officerName}</strong></span>
-          <span>Date: <strong>{lastSubmissionTime ? new Date(lastSubmissionTime).toLocaleDateString('en-IN') : 'Pending'}</strong></span>
+        <div className="mt-3 text-xs text-slate-800 flex justify-between">
+          <div>
+            <strong>Facility:</strong> {hospital?.hospital_name} [{hospital?.uid || hospital?.id}]
+          </div>
+          <div>
+            <strong>Medical Officer:</strong> {officerName}
+          </div>
+          <div>
+            <strong>Date:</strong> {submissionRecord ? new Date(submissionRecord.submitted_at).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN')}
+          </div>
         </div>
       </div>
 
-      {/* Medicine Demand Table */}
+      {/* Main Table Form */}
       <form onSubmit={handleSubmit}>
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
@@ -337,45 +413,40 @@ export const MedicineDemandsView: React.FC = () => {
                 <tr>
                   <th className="py-3 px-4 w-12 text-center">#</th>
                   <th className="py-3 px-4">Medicine Name</th>
-                  <th className="py-3 px-4 w-44">Category</th>
+                  <th className="py-3 px-4 w-40">Category</th>
                   <th className="py-3 px-4 w-32">Pack Size</th>
-                  <th className="py-3 px-4 w-40 text-right">Requested Quantity</th>
+                  <th className="py-3 px-4 w-44 text-right">Requested Quantity</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 text-slate-700">
+              <tbody className="divide-y divide-slate-100 text-slate-700">
                 {filteredMeds.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-slate-500">
-                      No medicines found matching the search or category.
+                      No medicines match the search term.
                     </td>
                   </tr>
                 ) : (
-                  filteredMeds.map((med, index) => {
-                    const qty = quantities[med.id] ?? 0;
+                  filteredMeds.map((med, idx) => {
+                    const qty = quantities[med.id] || 0;
+
                     return (
                       <tr
                         key={med.id}
-                        className={`hover:bg-slate-50/80 transition-colors ${
+                        className={`hover:bg-slate-50 transition-colors ${
                           qty > 0 ? 'bg-emerald-50/30' : ''
                         }`}
                       >
                         <td className="py-3 px-4 text-center text-xs text-slate-400 font-mono">
-                          {index + 1}
+                          {idx + 1}
                         </td>
-                        <td className="py-3 px-4 font-medium text-slate-900">
+                        <td className="py-3 px-4 font-semibold text-slate-900">
                           <div className="flex items-center gap-2">
                             <Pill className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                             <span>{med.medicine_name}</span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-xs">
-                          <span
-                            className={`px-2 py-0.5 rounded-md font-semibold text-[11px] ${
-                              med.category === 'Classical Medicine'
-                                ? 'bg-amber-100 text-amber-800'
-                                : 'bg-blue-100 text-blue-800'
-                            }`}
-                          >
+                        <td className="py-3 px-4 text-xs font-medium text-slate-600">
+                          <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[11px]">
                             {med.category}
                           </span>
                         </td>
@@ -391,12 +462,12 @@ export const MedicineDemandsView: React.FC = () => {
                               value={qty === 0 ? '' : qty}
                               onChange={(e) => handleQtyChange(med.id, e.target.value)}
                               placeholder="0"
-                              className="w-28 px-3 py-1.5 text-right font-mono font-bold text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                              className="w-28 px-3 py-1 text-right font-mono font-bold text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-900"
                             />
                           ) : (
                             <span
                               className={`font-mono font-bold text-sm ${
-                                qty > 0 ? 'text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded' : 'text-slate-400'
+                                qty > 0 ? 'text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded' : 'text-slate-400'
                               }`}
                             >
                               {qty > 0 ? `${qty} units` : '—'}
@@ -411,54 +482,65 @@ export const MedicineDemandsView: React.FC = () => {
             </table>
           </div>
 
-          {/* Table Footer with Summary & Submit Button */}
-          <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+          {/* Table Footer with Submit Action */}
+          <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 no-print">
             <div className="text-xs text-slate-600">
-              Showing <strong>{filteredMeds.length}</strong> of {medicines.length} medicines • Total Demanded:{' '}
-              <strong className="text-emerald-700">{totalItemsDemanded} varieties ({totalUnitsDemanded} units)</strong>
+              List: <strong className="text-slate-900">{currentDrive.title}</strong> • Total Demanded:{' '}
+              <strong className="text-emerald-700">
+                {totalItemsDemanded} varieties ({totalUnitsDemanded} units)
+              </strong>
             </div>
 
-            {isEditing && (
-              <div className="flex items-center gap-3 no-print">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditing(false);
-                    loadData();
-                  }}
-                  className="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-300 rounded-xl cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="inline-flex items-center gap-2 px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow cursor-pointer disabled:opacity-60"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{isSubmitting ? 'Recording Demands...' : 'Finalize & Submit Demand'}</span>
-                </button>
-              </div>
-            )}
+            <div className="flex items-center gap-3">
+              {isEditing ? (
+                <>
+                  {isSubmitted && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || !currentDrive.is_active}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>{isSubmitting ? 'Saving...' : 'Submit Medicine Demands'}</span>
+                  </button>
+                </>
+              ) : (
+                currentDrive.is_active && (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow cursor-pointer"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    <span>Edit Demands</span>
+                  </button>
+                )
+              )}
+            </div>
           </div>
         </div>
       </form>
 
-      {/* Official Signatures Block (For Printout / Verification) */}
-      <div className="hidden print-only pt-16 mt-8 border-t border-slate-300">
-        <div className="grid grid-cols-2 gap-8 text-center text-xs">
-          <div>
-            <div className="border-b border-dashed border-slate-400 w-48 mx-auto mb-2"></div>
-            <p className="font-bold">{officerName}</p>
-            <p className="text-slate-600">Medical Officer In-Charge / Submitting Officer</p>
-            <p className="text-slate-500">{hospital?.hospital_name}</p>
-          </div>
-          <div>
-            <div className="border-b border-dashed border-slate-400 w-48 mx-auto mb-2"></div>
-            <p className="font-bold">Verified & Received</p>
-            <p className="text-slate-600">District Ayurvedic & Unani Officer</p>
-            <p className="text-slate-500">District Dehradun (Uttarakhand)</p>
-          </div>
+      {/* Official Signature area when printing */}
+      <div className="hidden print-only mt-12 pt-8 border-t border-slate-300 flex justify-between text-xs">
+        <div>
+          <p className="font-semibold text-slate-900">Forwarded by:</p>
+          <p className="mt-8 font-bold">{officerName}</p>
+          <p className="text-slate-600">Medical Officer In-Charge</p>
+          <p className="text-slate-500">{hospital?.hospital_name}</p>
+        </div>
+        <div className="text-right">
+          <p className="font-semibold text-slate-900">Received & Approved by:</p>
+          <p className="mt-8 font-bold">District Ayurvedic & Unani Officer</p>
+          <p className="text-slate-600">District Dehradun, Uttarakhand</p>
         </div>
       </div>
     </div>
