@@ -50,11 +50,14 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'demand_pending' | 'mpr_pending' | 'all_completed'>('all');
 
-  // Available Financial Year months list (April to March)
+  // Available Financial Year months list (April to March) - strictly excluding advance/future months
   const availableMonths = useMemo(() => {
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1; // 1 to 12
+    const lastDayOfMonth = new Date(currentYear, currentMonth, 0).getDate();
+    const isLastDay = now.getDate() === lastDayOfMonth;
+
     const fyStartYear = currentMonth >= 4 ? currentYear : currentYear - 1;
     const fyEndYear = fyStartYear + 1;
 
@@ -73,10 +76,18 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
       { m: 3, name: 'March', y: fyEndYear },
     ];
 
-    return fySequence.map((item) => ({
-      value: `${item.y}-${String(item.m).padStart(2, '0')}`,
-      label: `${item.name} ${item.y}`,
-    }));
+    return fySequence
+      .filter((item) => {
+        if (item.y < currentYear) return true;
+        if (item.y > currentYear) return false;
+        if (item.m < currentMonth) return true;
+        if (item.m === currentMonth && isLastDay) return true;
+        return false;
+      })
+      .map((item) => ({
+        value: `${item.y}-${String(item.m).padStart(2, '0')}`,
+        label: `${item.name} ${item.y}`,
+      }));
   }, []);
 
   useEffect(() => {
@@ -351,7 +362,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Filter hospital or block..."
+                placeholder="Filter hospital or type..."
                 className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-900"
               />
             </div>
@@ -413,7 +424,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
               <tr>
                 <th className="py-3 px-4 w-12 text-center">#</th>
                 <th className="py-3 px-4">Hospital / Dispensary Name</th>
-                <th className="py-3 px-4 w-28">Block</th>
+                <th className="py-3 px-4 w-36">Facility Type</th>
 
                 {/* Medicine Demand Header with Dropdown Selector */}
                 <th className="py-2.5 px-3 min-w-[240px] text-center bg-blue-50/50 border-x border-slate-200">
@@ -520,7 +531,9 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
                         )}
                       </td>
                       <td className="py-3 px-4 text-xs font-medium text-slate-600">
-                        {hosp.block_name}
+                        <span className="inline-block px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-[11px]">
+                          {hosp.category || hosp.block_name || 'Ayurvedic Facility'}
+                        </span>
                       </td>
 
                       {/* Demand Status for Selected List */}

@@ -174,6 +174,42 @@ export const dbService = {
     return true;
   },
 
+  async updateHospital(id: string, updates: Partial<HospitalMaster>): Promise<boolean> {
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('hospitals_master')
+          .update(updates)
+          .eq('id', id);
+        if (!error) return true;
+      } catch (err) {
+        console.warn('Supabase updateHospital failed', err);
+      }
+    }
+    const current = await this.getHospitals();
+    const updated = current.map((h) => (h.id === id ? { ...h, ...updates } : h));
+    setLocal(STORAGE_KEYS.HOSPITALS, updated);
+    return true;
+  },
+
+  async deleteHospital(id: string): Promise<boolean> {
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('hospitals_master')
+          .delete()
+          .eq('id', id);
+        if (!error) return true;
+      } catch (err) {
+        console.warn('Supabase deleteHospital failed', err);
+      }
+    }
+    const current = await this.getHospitals();
+    const updated = current.filter((h) => h.id !== id);
+    setLocal(STORAGE_KEYS.HOSPITALS, updated);
+    return true;
+  },
+
   // ==================== MEDICINES CATALOG ====================
   async getMedicines(): Promise<MedicineItem[]> {
     if (supabase) {
