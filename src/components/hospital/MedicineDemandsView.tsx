@@ -539,28 +539,73 @@ export const MedicineDemandsView: React.FC = () => {
 
       {/* Main Table Form */}
       <form onSubmit={handleSubmit}>
+        {/* Bulk Preset Fill Toolbar (Only visible when pending/editable) */}
+        {isEditable && (
+          <div className="bg-emerald-50/70 p-3 rounded-2xl border border-emerald-200 flex flex-wrap items-center justify-between gap-2.5 text-xs no-print mb-3">
+            <div className="flex items-center gap-1.5 font-bold text-emerald-950">
+              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <span>Bulk Quick Fill:</span>
+              <span className="text-[11px] text-emerald-700 font-normal hidden sm:inline">
+                (Set uniform quantity for all items)
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {[10, 20, 50, 100].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => {
+                    const updated: Record<string, number> = { ...quantities };
+                    filteredMeds.forEach((m) => {
+                      updated[m.id] = preset;
+                    });
+                    setQuantities(updated);
+                  }}
+                  className="px-2.5 py-1 bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-lg text-xs font-bold cursor-pointer transition shadow-xs active:scale-95"
+                >
+                  All = {preset}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  const updated: Record<string, number> = { ...quantities };
+                  filteredMeds.forEach((m) => {
+                    updated[m.id] = 0;
+                  });
+                  setQuantities(updated);
+                }}
+                className="px-2.5 py-1 bg-white hover:bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-semibold cursor-pointer transition active:scale-95"
+              >
+                Clear all
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Medicine Table - Mobile Optimized (No Horizontal Scrolling) */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-100/80 text-slate-700 font-semibold border-b border-slate-200 uppercase text-[11px] tracking-wider">
                 <tr>
-                  <th className="py-3 px-4 w-12 text-center">#</th>
-                  <th className="py-3 px-4">Medicine Name</th>
-                  <th className="py-3 px-4 w-40">Category</th>
-                  <th className="py-3 px-4 w-32">Pack Size</th>
-                  <th className="py-3 px-4 w-44 text-right">Requested Quantity</th>
+                  <th className="py-2.5 px-2 sm:px-3 w-10 text-center">#</th>
+                  <th className="py-2.5 px-2 sm:px-3">Medicine & Pack Size</th>
+                  <th className="py-2.5 px-2 sm:px-3 w-32 sm:w-44 text-right">Quantity</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {filteredMeds.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-slate-500">
+                    <td colSpan={3} className="py-8 text-center text-slate-500 text-xs">
                       No medicines match the search term.
                     </td>
                   </tr>
                 ) : (
                   filteredMeds.map((med, idx) => {
                     const qty = quantities[med.id] || 0;
+                    const prevMed = idx > 0 ? filteredMeds[idx - 1] : null;
+                    const prevQty = prevMed ? quantities[prevMed.id] || 0 : 0;
 
                     return (
                       <tr
@@ -569,38 +614,47 @@ export const MedicineDemandsView: React.FC = () => {
                           qty > 0 ? 'bg-emerald-50/30' : ''
                         }`}
                       >
-                        <td className="py-3 px-4 text-center text-xs text-slate-400 font-mono">
+                        <td className="py-2.5 px-2 sm:px-3 text-center text-xs text-slate-400 font-mono">
                           {idx + 1}
                         </td>
-                        <td className="py-3 px-4 font-semibold text-slate-900">
-                          <div className="flex items-center gap-2">
-                            <Pill className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                            <span>{med.medicine_name}</span>
+                        <td className="py-2.5 px-2 sm:px-3">
+                          <div className="font-bold text-slate-900 text-xs sm:text-sm leading-tight">
+                            {med.medicine_name}
+                          </div>
+                          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                            <span className="text-[10px] sm:text-[11px] font-mono text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded font-semibold">
+                              {med.pack_size}
+                            </span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-xs font-medium text-slate-600">
-                          <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[11px]">
-                            {med.category}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-xs font-mono text-slate-600">
-                          {med.pack_size}
-                        </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-2.5 px-2 sm:px-3 text-right align-middle">
                           {isEditable ? (
-                            <input
-                              type="number"
-                              min="0"
-                              max="10000"
-                              value={qty === 0 ? '' : qty}
-                              onChange={(e) => handleQtyChange(med.id, e.target.value)}
-                              placeholder="0"
-                              className="w-28 px-3 py-1 text-right font-mono font-bold text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-900"
-                            />
+                            <div className="flex flex-col items-end gap-1">
+                              <input
+                                type="number"
+                                min="0"
+                                max="10000"
+                                value={qty === 0 ? '' : qty}
+                                onChange={(e) => handleQtyChange(med.id, e.target.value)}
+                                placeholder="0"
+                                className="w-20 sm:w-28 px-2 py-1 text-right font-mono font-bold text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                              />
+                              {idx > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleQtyChange(med.id, String(prevQty))}
+                                  className="text-[10px] text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded px-1.5 py-0.5 inline-flex items-center gap-0.5 cursor-pointer whitespace-nowrap active:scale-95 transition"
+                                  title="Copy quantity from the medicine above"
+                                >
+                                  <span>↑ Same as above</span>
+                                  {prevQty > 0 && <span className="font-bold font-mono">({prevQty})</span>}
+                                </button>
+                              )}
+                            </div>
                           ) : (
                             <span
                               className={`font-mono font-bold text-sm ${
-                                qty > 0 ? 'text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded' : 'text-slate-400'
+                                qty > 0 ? 'text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded inline-block' : 'text-slate-400'
                               }`}
                             >
                               {qty > 0 ? `${qty} units` : '—'}
