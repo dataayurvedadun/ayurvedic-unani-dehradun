@@ -6,9 +6,16 @@ import { Printer, Download, X } from 'lucide-react';
 interface PrintableMprReportProps {
   report: MonthlyProgressReport;
   onClose?: () => void;
+  reportTypeTitle?: string;
+  periodLabel?: string;
 }
 
-export const PrintableMprReport: React.FC<PrintableMprReportProps> = ({ report, onClose }) => {
+export const PrintableMprReport: React.FC<PrintableMprReportProps> = ({
+  report,
+  onClose,
+  reportTypeTitle,
+  periodLabel,
+}) => {
   const metrics = report.other_metrics || {};
   const newOpd = metrics.new_opd || { male: 0, female: 0, other: 0, total: 0 };
   const oldOpd = metrics.old_opd || { male: 0, female: 0, other: 0, total: 0 };
@@ -40,7 +47,7 @@ export const PrintableMprReport: React.FC<PrintableMprReportProps> = ({ report, 
           <div className="flex items-center gap-2">
             <Printer className="w-5 h-5 text-emerald-400" />
             <h3 className="font-bold text-sm text-slate-100">
-              Official Monthly Progress Report (MPR) - Print & PDF Export
+              {reportTypeTitle || 'Official Monthly Progress Report (MPR) - Print & PDF Export'}
             </h3>
           </div>
           <div className="flex items-center gap-3">
@@ -73,7 +80,7 @@ export const PrintableMprReport: React.FC<PrintableMprReportProps> = ({ report, 
               OFFICE OF THE DISTRICT AYURVEDIC & UNANI OFFICER, DEHRADUN
             </div>
             <div className="inline-block mt-1 px-3 py-0.5 bg-slate-100 border border-slate-300 rounded font-bold text-xs text-slate-800">
-              मासिक प्रगति आख्या (MONTHLY PROGRESS REPORT - MPR)
+              {reportTypeTitle || 'मासिक प्रगति आख्या (MONTHLY PROGRESS REPORT - MPR)'}
             </div>
           </div>
 
@@ -84,7 +91,7 @@ export const PrintableMprReport: React.FC<PrintableMprReportProps> = ({ report, 
               <span className="font-bold text-slate-900">{report.hospital_name}</span>
             </div>
             <div>
-              <span className="text-slate-500 font-semibold block">माह / Reporting Month:</span>
+              <span className="text-slate-500 font-semibold block">{periodLabel || 'माह / Reporting Month'}:</span>
               <span className="font-bold text-emerald-800">{report.month_year}</span>
             </div>
             <div>
