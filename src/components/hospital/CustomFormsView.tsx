@@ -9,9 +9,9 @@ import {
   Clock,
   Send,
   AlertCircle,
-  HelpCircle,
   Calendar,
-  Sparkles,
+  Lock,
+  Archive,
   Check,
 } from 'lucide-react';
 
@@ -33,8 +33,9 @@ export const CustomFormsView: React.FC = () => {
 
   const loadData = async () => {
     if (!hospital) return;
+    // Load ALL forms (both active and inactive) so previously submitted forms can still be inspected
     const [allForms, userResponses] = await Promise.all([
-      dbService.getDynamicForms(true), // active forms
+      dbService.getDynamicForms(false),
       dbService.getDynamicFormResponses(undefined, hospital.id),
     ]);
 
@@ -63,7 +64,26 @@ export const CustomFormsView: React.FC = () => {
     setNotification(null);
   };
 
+  const selectedForm = forms.find((f) => f.id === selectedFormId);
+  const selectedFormResponse = responses.find((r) => r.form_id === selectedFormId);
+
+  const isSubmitted = Boolean(selectedFormResponse);
+  const isActive = Boolean(selectedForm?.is_active);
+
+  // Status:
+  // 1. submitted: if user has submitted (permanently locked / uneditable)
+  // 2. pending: if active and not submitted (editable)
+  // 3. expired: if !is_active (uneditable)
+  const currentStatus: 'submitted' | 'pending' | 'expired' = isSubmitted
+    ? 'submitted'
+    : isActive
+    ? 'pending'
+    : 'expired';
+
+  const isReadOnly = currentStatus !== 'pending';
+
   const handleInputChange = (fieldId: string, value: any) => {
+    if (isReadOnly) return; // Disallow any changes if submitted or expired
     setFormData((prev) => ({
       ...prev,
       [fieldId]: value,
@@ -72,7 +92,7 @@ export const CustomFormsView: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hospital || !selectedForm) return;
+    if (!hospital || !selectedForm || isReadOnly) return;
 
     // Validate required fields
     for (const field of selectedForm.form_fields) {
@@ -103,7 +123,7 @@ export const CustomFormsView: React.FC = () => {
         category: 'form',
       });
 
-      setNotification(`Response for "${selectedForm.form_title}" successfully saved!`);
+      setNotification(`Response for "${selectedForm.form_title}" successfully submitted and locked! Once submitted, answers cannot be edited.`);
       const updatedResponses = await dbService.getDynamicFormResponses(undefined, hospital.id);
       setResponses(updatedResponses);
 
@@ -121,14 +141,11 @@ export const CustomFormsView: React.FC = () => {
     }
   };
 
-  const selectedForm = forms.find((f) => f.id === selectedFormId);
-  const selectedFormResponse = responses.find((r) => r.form_id === selectedFormId);
-
   return (
     <div className="space-y-6">
       {/* Top Notification */}
       {notification && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <span>{notification}</span>
@@ -149,10 +166,10 @@ export const CustomFormsView: React.FC = () => {
             District Administration Surveys
           </span>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
-            Custom Administrative Data Collection Forms
+            Special Administrative Surveys & Data Returns
           </h2>
           <p className="text-sm text-slate-600 mt-1">
-            Official questionnaires and compliance surveys published by the District Ayurvedic Officer Dehradun.
+            Questionnaires and compliance surveys published by the District Ayurvedic & Unani Officer, Dehradun.
           </p>
         </div>
       </div>
@@ -160,9 +177,9 @@ export const CustomFormsView: React.FC = () => {
       {forms.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm">
           <FileCode className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-slate-800">No Active Forms Published</h3>
+          <h3 className="text-lg font-bold text-slate-800">No Administrative Surveys Published</h3>
           <p className="text-sm text-slate-500 max-w-md mx-auto mt-1">
-            There are currently no additional administrative surveys requiring hospital response. Check back later.
+            There are currently no additional administrative surveys requiring hospital response.
           </p>
         </div>
       ) : (
@@ -170,41 +187,75 @@ export const CustomFormsView: React.FC = () => {
           {/* Left Column: Form Selector List */}
           <div className="lg:col-span-4 space-y-3">
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">
-              Active Surveys ({forms.length})
+              Surveys & Forms ({forms.length})
             </h3>
             {forms.map((form) => {
-              const hasSubmitted = responses.some((r) => r.form_id === form.id);
+              const res = responses.find((r) => r.form_id === form.id);
+              const hasSub = Boolean(res);
+              const status: 'submitted' | 'pending' | 'expired' = hasSub
+                ? 'submitted'
+                : form.is_active
+                ? 'pending'
+                : 'expired';
               const isSelected = form.id === selectedFormId;
+
               return (
                 <div
                   key={form.id}
                   onClick={() => handleSelectForm(form.id)}
                   className={`p-4 rounded-xl border transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-emerald-50 border-emerald-500 shadow-sm ring-1 ring-emerald-500/20'
-                      : 'bg-white hover:bg-slate-50 border-slate-200'
+                      ? 'bg-emerald-900 text-white border-emerald-900 shadow-md ring-2 ring-emerald-500/20'
+                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-900'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-xs font-bold text-slate-800 line-clamp-1">
+                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                    <span className="text-xs font-bold line-clamp-1">
                       {form.form_title}
                     </span>
-                    {hasSubmitted ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                        <Check className="w-3 h-3" />
-                        Submitted
+                    {status === 'submitted' ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300 flex-shrink-0">
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        SUBMITTED
+                      </span>
+                    ) : status === 'pending' ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300 flex-shrink-0">
+                        <Clock className="w-3 h-3 text-amber-600" />
+                        PENDING
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
-                        <Clock className="w-3 h-3" />
-                        Pending
+                      <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-slate-700 bg-slate-200 px-2 py-0.5 rounded-full border border-slate-300 flex-shrink-0">
+                        <Archive className="w-3 h-3 text-slate-500" />
+                        EXPIRED
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500 line-clamp-2">{form.description}</p>
-                  <div className="text-[10px] text-slate-400 mt-2">
-                    {form.form_fields.length} question fields • Published{' '}
-                    {new Date(form.created_at).toLocaleDateString('en-IN')}
+
+                  <p className={`text-xs line-clamp-2 ${isSelected ? 'text-slate-200' : 'text-slate-500'}`}>
+                    {form.description}
+                  </p>
+
+                  <div className={`text-[10px] mt-2 pt-2 border-t space-y-0.5 ${
+                    isSelected ? 'border-emerald-800 text-emerald-200' : 'border-slate-100 text-slate-500'
+                  }`}>
+                    <div>
+                      <strong>Admin Activated:</strong>{' '}
+                      {new Date(form.created_at).toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </div>
+                    {hasSub && res && (
+                      <div className={isSelected ? 'text-emerald-300 font-semibold' : 'text-emerald-700 font-semibold'}>
+                        <strong>Submitted:</strong>{' '}
+                        {new Date(res.submitted_at).toLocaleDateString('en-IN', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -214,19 +265,59 @@ export const CustomFormsView: React.FC = () => {
           {/* Right Column: Form Rendering & Submissions */}
           <div className="lg:col-span-8">
             {selectedForm ? (
-              <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
-                <div className="border-b border-slate-200 pb-4 mb-6">
-                  <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                {/* Form Header */}
+                <div className="border-b border-slate-200 pb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                     <h3 className="text-xl font-bold text-slate-900">{selectedForm.form_title}</h3>
-                    {selectedFormResponse && (
-                      <span className="text-xs text-emerald-800 bg-emerald-100 font-semibold px-2.5 py-1 rounded-full border border-emerald-300">
-                        Submitted on {new Date(selectedFormResponse.submitted_at).toLocaleDateString('en-IN')}
+
+                    {currentStatus === 'submitted' ? (
+                      <span className="text-xs text-emerald-800 bg-emerald-100 font-bold px-3 py-1 rounded-full border border-emerald-300 flex items-center gap-1 self-start sm:self-auto">
+                        <Lock className="w-3.5 h-3.5 text-emerald-700" />
+                        Submitted (Locked / Uneditable)
+                      </span>
+                    ) : currentStatus === 'pending' ? (
+                      <span className="text-xs text-amber-900 bg-amber-100 font-bold px-3 py-1 rounded-full border border-amber-300 flex items-center gap-1 self-start sm:self-auto">
+                        <Clock className="w-3.5 h-3.5 text-amber-700" />
+                        Pending Response
+                      </span>
+                    ) : (
+                      <span className="text-xs text-slate-700 bg-slate-200 font-bold px-3 py-1 rounded-full border border-slate-300 flex items-center gap-1 self-start sm:self-auto">
+                        <Archive className="w-3.5 h-3.5 text-slate-500" />
+                        Expired / Closed
                       </span>
                     )}
                   </div>
+
                   <p className="text-sm text-slate-600 leading-relaxed">{selectedForm.description}</p>
+
+                  {/* Metadata Chips */}
+                  <div className="mt-3 flex items-center gap-4 text-xs text-slate-500 flex-wrap">
+                    <span className="bg-slate-100 px-2.5 py-1 rounded-lg">
+                      <strong>Admin Activated:</strong>{' '}
+                      {new Date(selectedForm.created_at).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </span>
+                    {selectedFormResponse && (
+                      <span className="bg-emerald-50 text-emerald-900 px-2.5 py-1 rounded-lg border border-emerald-200">
+                        <strong>User Submitted:</strong>{' '}
+                        {new Date(selectedFormResponse.submitted_at).toLocaleString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}{' '}
+                        by {selectedFormResponse.officer_name}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
+                {/* Form Fields */}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {selectedForm.form_fields.map((field, idx) => {
                     const value = formData[field.id] ?? '';
@@ -234,17 +325,18 @@ export const CustomFormsView: React.FC = () => {
                       <div key={field.id} className="space-y-1.5">
                         <label className="block text-sm font-semibold text-slate-800">
                           {idx + 1}. {field.label}{' '}
-                          {field.required && <span className="text-red-500">*</span>}
+                          {field.required && !isReadOnly && <span className="text-red-500">*</span>}
                         </label>
 
                         {field.type === 'text' && (
                           <input
                             type="text"
                             required={field.required}
+                            disabled={isReadOnly}
                             value={value}
                             onChange={(e) => handleInputChange(field.id, e.target.value)}
                             placeholder={field.placeholder || 'Enter response text'}
-                            className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                            className="w-full px-3 py-2 text-sm bg-slate-50 disabled:bg-slate-100/90 disabled:text-slate-800 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 text-slate-900"
                           />
                         )}
 
@@ -252,19 +344,21 @@ export const CustomFormsView: React.FC = () => {
                           <input
                             type="number"
                             required={field.required}
+                            disabled={isReadOnly}
                             value={value}
                             onChange={(e) => handleInputChange(field.id, e.target.value)}
                             placeholder={field.placeholder || '0'}
-                            className="w-full sm:w-64 px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900"
+                            className="w-full sm:w-64 px-3 py-2 text-sm bg-slate-50 disabled:bg-slate-100/90 disabled:text-slate-800 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900"
                           />
                         )}
 
                         {field.type === 'select' && (
                           <select
                             required={field.required}
+                            disabled={isReadOnly}
                             value={value}
                             onChange={(e) => handleInputChange(field.id, e.target.value)}
-                            className="w-full sm:w-80 px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                            className="w-full sm:w-80 px-3 py-2 text-sm bg-slate-50 disabled:bg-slate-100/90 disabled:text-slate-800 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 text-slate-900"
                           >
                             <option value="">-- Select an option --</option>
                             {field.options?.map((opt, i) => (
@@ -279,10 +373,11 @@ export const CustomFormsView: React.FC = () => {
                           <textarea
                             rows={3}
                             required={field.required}
+                            disabled={isReadOnly}
                             value={value}
                             onChange={(e) => handleInputChange(field.id, e.target.value)}
                             placeholder={field.placeholder || 'Provide detailed information...'}
-                            className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                            className="w-full px-3 py-2 text-sm bg-slate-50 disabled:bg-slate-100/90 disabled:text-slate-800 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 text-slate-900"
                           />
                         )}
 
@@ -290,27 +385,42 @@ export const CustomFormsView: React.FC = () => {
                           <input
                             type="date"
                             required={field.required}
+                            disabled={isReadOnly}
                             value={value}
                             onChange={(e) => handleInputChange(field.id, e.target.value)}
-                            className="w-full sm:w-64 px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                            className="w-full sm:w-64 px-3 py-2 text-sm bg-slate-50 disabled:bg-slate-100/90 disabled:text-slate-800 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 text-slate-900"
                           />
                         )}
                       </div>
                     );
                   })}
 
-                  <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
+                  {/* Submission Action or Locked Indicator */}
+                  <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <span className="text-xs text-slate-500">
-                      Submitting as: <strong className="text-slate-800">{officerName}</strong>
+                      Attending Officer: <strong className="text-slate-800">{officerName}</strong> ({hospital?.hospital_name})
                     </span>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-md disabled:opacity-60 cursor-pointer"
-                    >
-                      <Send className="w-4 h-4" />
-                      <span>{isSubmitting ? 'Submitting...' : selectedFormResponse ? 'Update Form Response' : 'Submit Form'}</span>
-                    </button>
+
+                    {currentStatus === 'pending' ? (
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-md disabled:opacity-60 cursor-pointer"
+                      >
+                        <Send className="w-4 h-4" />
+                        <span>{isSubmitting ? 'Submitting...' : 'Submit Official Response'}</span>
+                      </button>
+                    ) : currentStatus === 'submitted' ? (
+                      <span className="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold border border-emerald-300 flex items-center gap-1.5 self-start sm:self-auto">
+                        <Lock className="w-3.5 h-3.5 text-emerald-700" />
+                        Response Locked in Central Registry (Uneditable)
+                      </span>
+                    ) : (
+                      <span className="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto">
+                        <Archive className="w-3.5 h-3.5 text-slate-500" />
+                        Survey Expired / Closed
+                      </span>
+                    )}
                   </div>
                 </form>
               </div>

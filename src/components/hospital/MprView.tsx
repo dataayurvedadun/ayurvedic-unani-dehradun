@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { dbService } from '../../lib/supabase';
 import { MonthlyProgressReport, OtherMprMetrics } from '../../types';
-import { MPR_DISEASE_LIST, MprDiseaseItem } from '../../constants/mprDiseases';
+import { MPR_DISEASE_LIST } from '../../constants/mprDiseases';
 import { PrintableMprReport } from '../mpr/PrintableMprReport';
 import confetti from 'canvas-confetti';
 import {
@@ -13,17 +13,13 @@ import {
   Send,
   Users,
   HeartPulse,
-  BedDouble,
-  Sparkles,
-  History,
-  Eye,
-  AlertCircle,
   Printer,
   IndianRupee,
   Search,
   ShieldCheck,
-  Building2,
   Activity,
+  Lock,
+  AlertTriangle,
 } from 'lucide-react';
 
 export const MprView: React.FC = () => {
@@ -31,8 +27,50 @@ export const MprView: React.FC = () => {
   const hospital = session?.hospital;
   const officerName = session?.officerName || 'Medical Officer In-Charge';
 
-  const [selectedMonth, setSelectedMonth] = useState<string>('2026-09');
+  // Helper to generate eligible months
+  const getEligibleMonths = (submittedMonths: Set<string>) => {
+    const list: { value: string; label: string; isEligibleToFill: boolean }[] = [];
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-11
+    const currentDate = now.getDate();
+    const lastDayOfCurrentMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const isLastDay = currentDate === lastDayOfCurrentMonth;
+
+    // Last 6 months
+    for (let i = 0; i <= 6; i++) {
+      const d = new Date(currentYear, currentMonth - i, 1);
+      const yr = d.getFullYear();
+      const mo = String(d.getMonth() + 1).padStart(2, '0');
+      const val = `${yr}-${mo}`;
+      const label = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+
+      const isCurrent = i === 0;
+      const isSubmitted = submittedMonths.has(val);
+
+      if (isCurrent) {
+        // Current month is only eligible to fill on the final day of the month, or viewable if already submitted
+        if (isLastDay || isSubmitted) {
+          list.push({ value: val, label, isEligibleToFill: isLastDay });
+        }
+      } else {
+        // Completed past months are always available to fill (if pending) or view (if submitted)
+        list.push({ value: val, label, isEligibleToFill: true });
+      }
+    }
+
+    // Include any older submitted months
+    submittedMonths.forEach((m) => {
+      if (!list.some((item) => item.value === m)) {
+        list.push({ value: m, label: m, isEligibleToFill: false });
+      }
+    });
+
+    return list;
+  };
+
   const [existingReports, setExistingReports] = useState<MonthlyProgressReport[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<string>('2026-08');
   const [currentReport, setCurrentReport] = useState<MonthlyProgressReport | null>(null);
 
   // 1. Patient Demographics
@@ -70,13 +108,6 @@ export const MprView: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [notification, setNotification] = useState<string | null>(null);
   const [printModalReport, setPrintModalReport] = useState<MonthlyProgressReport | null>(null);
-
-  const monthOptions = [
-    { value: '2026-09', label: 'September 2026' },
-    { value: '2026-08', label: 'August 2026' },
-    { value: '2026-07', label: 'July 2026' },
-    { value: '2026-06', label: 'June 2026' },
-  ];
 
   useEffect(() => {
     loadHospitalReports();
@@ -217,7 +248,13 @@ export const MprView: React.FC = () => {
   const totalCampBen = campBeneficiaries.male + campBeneficiaries.female + campBeneficiaries.other + campBeneficiaries.children;
   const totalYogaBen = yogaBeneficiaries.male + yogaBeneficiaries.female + yogaBeneficiaries.other;
 
+  // Lifecycle check: Is this month's report submitted?
+  // Once submitted, user cannot edit any data (uneditable permanent record)
+  const isSubmitted = Boolean(currentReport);
+  const isReadOnly = isSubmitted;
+
   const handleDiseaseChange = (diseaseId: number, field: 'new_cases' | 'old_cases', val: number) => {
+    if (isReadOnly) return;
     setDiseaseRecords((prev) => ({
       ...prev,
       [diseaseId]: {
@@ -229,7 +266,7 @@ export const MprView: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hospital) return;
+    if (!hospital || isReadOnly) return;
 
     if (grandTotalOpd === 0) {
       setNotification('Please enter the OPD patient counts before submitting the MPR.');
@@ -239,7 +276,6 @@ export const MprView: React.FC = () => {
     setIsSubmitting(true);
     const submissionTime = new Date().toISOString();
 
-    // Map disease records to full DiseaseMorbidityEntry objects
     const diseaseMapPayload: Record<string, any> = {};
     MPR_DISEASE_LIST.forEach((d) => {
       const rec = diseaseRecords[d.id] || { new_cases: 0, old_cases: 0 };
@@ -300,7 +336,6 @@ export const MprView: React.FC = () => {
       const saved = await dbService.submitMpr(reportPayload);
       setCurrentReport(saved);
 
-      // Add log
       await dbService.addActivityLog({
         action: 'Submitted Monthly Progress Report',
         user: `${hospital.hospital_name} (${officerName})`,
@@ -315,8 +350,13 @@ export const MprView: React.FC = () => {
         origin: { y: 0.6 },
       });
 
-      setNotification(`Official MPR for ${selectedMonth} submitted successfully!`);
-      setTimeout(() => setNotification(null), 5000);
+      setNotification(
+        `Official MPR for ${selectedMonth} submitted and permanently locked on ${new Date(
+          submissionTime
+        ).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} at ${new Date(
+          submissionTime
+        ).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}! Once submitted, returns cannot be edited.`
+      );
       loadHospitalReports();
     } catch (err: any) {
       setNotification(`Submission failed: ${err.message}`);
@@ -332,10 +372,70 @@ export const MprView: React.FC = () => {
       d.sNo.toString() === diseaseSearch.trim()
   );
 
+  const submittedMonthSet = new Set(existingReports.map((r) => r.month_year));
+  const availableMonths = getEligibleMonths(submittedMonthSet);
+
   return (
     <div className="space-y-6">
-      {/* Top Banner & Month Selector */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Month Selection Tabs */}
+      <div className="space-y-2 no-print">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+            Reporting Period (माहवार प्रगति आख्या)
+          </span>
+          <span className="text-[11px] text-slate-500">
+            Current month opens for submission on the last day of the month
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2.5">
+          {availableMonths.map((m) => {
+            const isSub = submittedMonthSet.has(m.value);
+            const isSelected = selectedMonth === m.value;
+            const subRec = existingReports.find((r) => r.month_year === m.value);
+
+            return (
+              <div
+                key={m.value}
+                onClick={() => setSelectedMonth(m.value)}
+                className={`p-3 rounded-2xl border transition cursor-pointer text-left ${
+                  isSelected
+                    ? 'bg-emerald-900 text-white border-emerald-900 shadow-md ring-2 ring-emerald-500/20'
+                    : 'bg-white hover:bg-slate-50 text-slate-900 border-slate-200'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <span className="font-bold text-xs truncate">{m.label}</span>
+                  {isSub ? (
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                      SUBMITTED
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-amber-100 text-amber-900 border border-amber-300">
+                      <Clock className="w-2.5 h-2.5 text-amber-600" />
+                      PENDING
+                    </span>
+                  )}
+                </div>
+
+                <div className={`text-[10px] mt-1 ${isSelected ? 'text-emerald-200' : 'text-slate-500'}`}>
+                  {isSub && subRec ? (
+                    <span>
+                      Submitted: {new Date(subRec.submitted_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                    </span>
+                  ) : (
+                    <span>Click to fill & submit return</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Top Banner */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-bold tracking-wider uppercase text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
@@ -344,36 +444,23 @@ export const MprView: React.FC = () => {
             <span className="text-xs text-slate-500">• 38 Morbidity Diseases</span>
           </div>
           <h2 className="text-2xl font-extrabold text-slate-900">
-            Monthly Progress Report (MPR)
+            Monthly Progress Report: {availableMonths.find((m) => m.value === selectedMonth)?.label || selectedMonth}
           </h2>
           <p className="text-sm text-slate-600">
-            Comprehensive facility performance return: OPD, IPD, Panchakarma, Levi collection, digital seeding, outreach camps, and disease morbidity.
+            {isSubmitted
+              ? 'This report has been officially submitted and authenticated. View your submitted returns in uneditable mode or print the official A4 PDF.'
+              : 'Enter patient footfall, IPD, Panchakarma, Levi collection, digital seeding, outreach camps, and disease morbidity.'}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-slate-400" />
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-            >
-              {monthOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {currentReport && (
             <button
               onClick={() => setPrintModalReport(currentReport)}
-              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition cursor-pointer"
             >
               <Printer className="w-4 h-4 text-emerald-400" />
-              <span>Download / Print PDF</span>
+              <span>Download / Print Official PDF</span>
             </button>
           )}
         </div>
@@ -381,9 +468,9 @@ export const MprView: React.FC = () => {
 
       {/* Notification */}
       {notification && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm font-semibold flex items-center justify-between shadow-sm animate-fade-in">
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm font-semibold flex items-center justify-between shadow-sm animate-fade-in no-print">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <span>{notification}</span>
           </div>
           <button
@@ -395,21 +482,22 @@ export const MprView: React.FC = () => {
         </div>
       )}
 
-      {/* Status Bar if already submitted */}
-      {currentReport && (
-        <div className="bg-emerald-50/80 rounded-2xl p-5 border border-emerald-300/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Lifecycle Status Bar */}
+      {isSubmitted ? (
+        <div className="bg-emerald-50/90 rounded-2xl p-5 border border-emerald-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-xs font-semibold text-emerald-800 uppercase tracking-wide">
-                Submission Authenticated
+              <div className="text-xs font-bold text-emerald-800 uppercase tracking-wide flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-emerald-700" />
+                Submitted & Locked in District Registry (Non-Editable)
               </div>
-              <div className="text-sm font-bold text-slate-900">
+              <div className="text-sm font-bold text-slate-900 mt-0.5">
                 MPR for {selectedMonth} was submitted on{' '}
                 <span className="text-emerald-900 font-extrabold">
-                  {new Date(currentReport.submitted_at).toLocaleString('en-IN', {
+                  {new Date(currentReport!.submitted_at).toLocaleString('en-IN', {
                     day: '2-digit',
                     month: 'short',
                     year: 'numeric',
@@ -417,7 +505,10 @@ export const MprView: React.FC = () => {
                     minute: '2-digit',
                   })}
                 </span>{' '}
-                by <span className="font-extrabold text-slate-900">{currentReport.officer_name}</span>
+                by <span className="font-extrabold text-slate-900">{currentReport!.officer_name}</span>
+              </div>
+              <div className="text-xs text-emerald-800 mt-0.5">
+                Total OPD: <strong>{currentReport!.opd_count}</strong> • Total Levi: <strong>₹{currentReport!.other_metrics?.levi?.total_levi || 0}</strong> • Once submitted, monthly returns are permanently locked.
               </div>
             </div>
           </div>
@@ -430,10 +521,20 @@ export const MprView: React.FC = () => {
             <span>Download Official Signed PDF</span>
           </button>
         </div>
+      ) : (
+        <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200 flex items-center gap-3 shadow-xs text-amber-950 text-xs">
+          <Clock className="w-5 h-5 text-amber-600 flex-shrink-0" />
+          <div>
+            <strong className="text-amber-900 font-bold uppercase tracking-wider block text-sm">
+              MPR Pending for {availableMonths.find((m) => m.value === selectedMonth)?.label || selectedMonth}
+            </strong>
+            Enter the patient counts, revenue, outreach, and 38 disease figures below and click <strong>"Submit Official MPR"</strong>.
+          </div>
+        </div>
       )}
 
       {/* Live Summary Chips */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 no-print">
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
           <div className="text-slate-500 text-xs font-semibold">Total OPD</div>
           <div className="text-2xl font-black text-emerald-700 mt-1">{grandTotalOpd}</div>
@@ -473,11 +574,18 @@ export const MprView: React.FC = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Section 1: Patient Footfall & Demographics */}
         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
-            <Users className="w-5 h-5 text-emerald-700" />
-            <h3 className="text-base font-bold text-slate-900">
-              1. Patient Demographics & Service Utilization (ओ.पी.डी., आई.पी.डी. एवं पंचकर्म)
-            </h3>
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-emerald-700" />
+              <h3 className="text-base font-bold text-slate-900">
+                1. Patient Demographics & Service Utilization (ओ.पी.डी., आई.पी.डी. एवं पंचकर्म)
+              </h3>
+            </div>
+            {isReadOnly && (
+              <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300 flex items-center gap-1">
+                <Lock className="w-3 h-3" /> Uneditable
+              </span>
+            )}
           </div>
 
           <div className="overflow-x-auto">
@@ -501,30 +609,33 @@ export const MprView: React.FC = () => {
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={newOpd.male || ''}
                       onChange={(e) => setNewOpd({ ...newOpd, male: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3">
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={newOpd.female || ''}
                       onChange={(e) => setNewOpd({ ...newOpd, female: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3">
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={newOpd.other || ''}
                       onChange={(e) => setNewOpd({ ...newOpd, other: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3 text-center font-bold text-slate-900 bg-slate-50 text-base">
@@ -541,30 +652,33 @@ export const MprView: React.FC = () => {
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={oldOpd.male || ''}
                       onChange={(e) => setOldOpd({ ...oldOpd, male: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3">
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={oldOpd.female || ''}
                       onChange={(e) => setOldOpd({ ...oldOpd, female: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3">
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={oldOpd.other || ''}
                       onChange={(e) => setOldOpd({ ...oldOpd, other: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3 text-center font-bold text-slate-900 bg-slate-50 text-base">
@@ -572,7 +686,7 @@ export const MprView: React.FC = () => {
                   </td>
                 </tr>
 
-                {/* Total OPD Combined Row */}
+                {/* Total Combined OPD Row */}
                 <tr className="bg-emerald-50/70 font-extrabold text-emerald-950">
                   <td className="py-2.5 px-3">Total Combined OPD (New + Old)</td>
                   <td className="py-2.5 px-3 text-center">{newOpd.male + oldOpd.male}</td>
@@ -592,30 +706,33 @@ export const MprView: React.FC = () => {
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={ipdPatients.male || ''}
                       onChange={(e) => setIpdPatients({ ...ipdPatients, male: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3">
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={ipdPatients.female || ''}
                       onChange={(e) => setIpdPatients({ ...ipdPatients, female: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3">
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={ipdPatients.other || ''}
                       onChange={(e) => setIpdPatients({ ...ipdPatients, other: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3 text-center font-bold text-slate-900 bg-slate-50 text-base">
@@ -632,30 +749,33 @@ export const MprView: React.FC = () => {
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={panchakarmaPatients.male || ''}
                       onChange={(e) => setPanchakarmaPatients({ ...panchakarmaPatients, male: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3">
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={panchakarmaPatients.female || ''}
                       onChange={(e) => setPanchakarmaPatients({ ...panchakarmaPatients, female: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3">
                     <input
                       type="number"
                       min={0}
+                      disabled={isReadOnly}
                       value={panchakarmaPatients.other || ''}
                       onChange={(e) => setPanchakarmaPatients({ ...panchakarmaPatients, other: Math.max(0, parseInt(e.target.value) || 0) })}
                       placeholder="0"
-                      className="w-full text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                      className="w-full text-center py-1.5 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                     />
                   </td>
                   <td className="py-2.5 px-3 text-center font-bold text-slate-900 bg-slate-50 text-base">
@@ -693,10 +813,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={opdLevi || ''}
                     onChange={(e) => setOpdLevi(Math.max(0, parseInt(e.target.value) || 0))}
                     placeholder="0"
-                    className="w-full pl-6 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                    className="w-full pl-6 pr-3 py-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -710,10 +831,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={panchakarmaLevi || ''}
                     onChange={(e) => setPanchakarmaLevi(Math.max(0, parseInt(e.target.value) || 0))}
                     placeholder="0"
-                    className="w-full pl-6 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                    className="w-full pl-6 pr-3 py-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -727,10 +849,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={medicalLevi || ''}
                     onChange={(e) => setMedicalLevi(Math.max(0, parseInt(e.target.value) || 0))}
                     placeholder="0"
-                    className="w-full pl-6 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                    className="w-full pl-6 pr-3 py-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -744,10 +867,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={otherLevi || ''}
                     onChange={(e) => setOtherLevi(Math.max(0, parseInt(e.target.value) || 0))}
                     placeholder="0"
-                    className="w-full pl-6 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                    className="w-full pl-6 pr-3 py-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -776,10 +900,11 @@ export const MprView: React.FC = () => {
                 <input
                   type="number"
                   min={0}
+                  disabled={isReadOnly}
                   value={mobileSeeded || ''}
                   onChange={(e) => setMobileSeeded(Math.max(0, parseInt(e.target.value) || 0))}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
@@ -790,10 +915,11 @@ export const MprView: React.FC = () => {
                 <input
                   type="number"
                   min={0}
+                  disabled={isReadOnly}
                   value={aadhaarSeeded || ''}
                   onChange={(e) => setAadhaarSeeded(Math.max(0, parseInt(e.target.value) || 0))}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
@@ -804,10 +930,11 @@ export const MprView: React.FC = () => {
                 <input
                   type="number"
                   min={0}
+                  disabled={isReadOnly}
                   value={patientsOutsideDdn || ''}
                   onChange={(e) => setPatientsOutsideDdn(Math.max(0, parseInt(e.target.value) || 0))}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
@@ -818,16 +945,17 @@ export const MprView: React.FC = () => {
                 <input
                   type="number"
                   min={0}
+                  disabled={isReadOnly}
                   value={patientsForeigners || ''}
                   onChange={(e) => setPatientsForeigners(Math.max(0, parseInt(e.target.value) || 0))}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
             </div>
 
             <p className="text-[11px] text-slate-500">
-              Captures digital registry compliance under Ayushman Bharat Digital Mission (ABDM) and tourist/migrant patient footfall in Dehradun.
+              Captures digital registry compliance under ABDM and tourist/migrant patient footfall in Dehradun.
             </p>
           </div>
         </div>
@@ -850,10 +978,11 @@ export const MprView: React.FC = () => {
               <input
                 type="number"
                 min={0}
+                disabled={isReadOnly}
                 value={totalCamps || ''}
                 onChange={(e) => setTotalCamps(Math.max(0, parseInt(e.target.value) || 0))}
                 placeholder="0"
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-lg font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 bg-white disabled:bg-slate-100 disabled:text-slate-800 border border-slate-300 rounded-xl text-lg font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
               />
               <span className="text-[11px] text-slate-500 mt-1 block">Number of health camps organized</span>
             </div>
@@ -870,10 +999,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={campBeneficiaries.male || ''}
                     onChange={(e) => setCampBeneficiaries({ ...campBeneficiaries, male: Math.max(0, parseInt(e.target.value) || 0) })}
                     placeholder="0"
-                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white border border-slate-300 rounded-lg"
+                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white disabled:bg-slate-100 border border-slate-300 rounded-lg"
                   />
                 </div>
                 <div>
@@ -881,10 +1011,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={campBeneficiaries.female || ''}
                     onChange={(e) => setCampBeneficiaries({ ...campBeneficiaries, female: Math.max(0, parseInt(e.target.value) || 0) })}
                     placeholder="0"
-                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white border border-slate-300 rounded-lg"
+                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white disabled:bg-slate-100 border border-slate-300 rounded-lg"
                   />
                 </div>
                 <div>
@@ -892,10 +1023,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={campBeneficiaries.other || ''}
                     onChange={(e) => setCampBeneficiaries({ ...campBeneficiaries, other: Math.max(0, parseInt(e.target.value) || 0) })}
                     placeholder="0"
-                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white border border-slate-300 rounded-lg"
+                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white disabled:bg-slate-100 border border-slate-300 rounded-lg"
                   />
                 </div>
                 <div>
@@ -903,10 +1035,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={campBeneficiaries.children || ''}
                     onChange={(e) => setCampBeneficiaries({ ...campBeneficiaries, children: Math.max(0, parseInt(e.target.value) || 0) })}
                     placeholder="0"
-                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white border border-slate-300 rounded-lg"
+                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white disabled:bg-slate-100 border border-slate-300 rounded-lg"
                   />
                 </div>
               </div>
@@ -924,10 +1057,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={yogaBeneficiaries.male || ''}
                     onChange={(e) => setYogaBeneficiaries({ ...yogaBeneficiaries, male: Math.max(0, parseInt(e.target.value) || 0) })}
                     placeholder="0"
-                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white border border-slate-300 rounded-lg"
+                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white disabled:bg-slate-100 border border-slate-300 rounded-lg"
                   />
                 </div>
                 <div>
@@ -935,10 +1069,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={yogaBeneficiaries.female || ''}
                     onChange={(e) => setYogaBeneficiaries({ ...yogaBeneficiaries, female: Math.max(0, parseInt(e.target.value) || 0) })}
                     placeholder="0"
-                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white border border-slate-300 rounded-lg"
+                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white disabled:bg-slate-100 border border-slate-300 rounded-lg"
                   />
                 </div>
                 <div>
@@ -946,10 +1081,11 @@ export const MprView: React.FC = () => {
                   <input
                     type="number"
                     min={0}
+                    disabled={isReadOnly}
                     value={yogaBeneficiaries.other || ''}
                     onChange={(e) => setYogaBeneficiaries({ ...yogaBeneficiaries, other: Math.max(0, parseInt(e.target.value) || 0) })}
                     placeholder="0"
-                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white border border-slate-300 rounded-lg"
+                    className="w-full text-center py-1 px-1 text-xs font-semibold bg-white disabled:bg-slate-100 border border-slate-300 rounded-lg"
                   />
                 </div>
               </div>
@@ -1019,6 +1155,7 @@ export const MprView: React.FC = () => {
                         <input
                           type="number"
                           min={0}
+                          disabled={isReadOnly}
                           value={rec.new_cases || ''}
                           onChange={(e) =>
                             handleDiseaseChange(
@@ -1028,13 +1165,14 @@ export const MprView: React.FC = () => {
                             )
                           }
                           placeholder="0"
-                          className="w-full text-center py-1 px-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-emerald-500"
+                          className="w-full text-center py-1 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-emerald-500"
                         />
                       </td>
                       <td className="py-2 px-3">
                         <input
                           type="number"
                           min={0}
+                          disabled={isReadOnly}
                           value={rec.old_cases || ''}
                           onChange={(e) =>
                             handleDiseaseChange(
@@ -1044,7 +1182,7 @@ export const MprView: React.FC = () => {
                             )
                           }
                           placeholder="0"
-                          className="w-full text-center py-1 px-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-emerald-500"
+                          className="w-full text-center py-1 px-2 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-emerald-500"
                         />
                       </td>
                       <td className="py-2 px-3 text-center font-bold text-slate-900 bg-slate-50">
@@ -1074,10 +1212,11 @@ export const MprView: React.FC = () => {
               </label>
               <textarea
                 rows={3}
+                disabled={isReadOnly}
                 value={stockShortageNotes}
                 onChange={(e) => setStockShortageNotes(e.target.value)}
                 placeholder="Mention any critical medicines in short supply (e.g. Mahasudarshan, Yograj Guggulu, etc.)..."
-                className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                className="w-full p-3 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500"
               />
             </div>
 
@@ -1087,10 +1226,11 @@ export const MprView: React.FC = () => {
               </label>
               <textarea
                 rows={3}
+                disabled={isReadOnly}
                 value={generalRemarks}
                 onChange={(e) => setGeneralRemarks(e.target.value)}
                 placeholder="Any special camp notes, VIP visits, infrastructure updates..."
-                className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                className="w-full p-3 bg-slate-50 disabled:bg-slate-100/80 disabled:text-slate-800 border border-slate-300 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500"
               />
             </div>
           </div>
@@ -1117,83 +1257,25 @@ export const MprView: React.FC = () => {
                 </button>
               )}
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition cursor-pointer disabled:opacity-60"
-              >
-                <Send className="w-4 h-4" />
-                <span>
-                  {isSubmitting
-                    ? 'Submitting Return...'
-                    : currentReport
-                    ? 'Update Monthly Return'
-                    : 'Submit Official MPR'}
+              {isReadOnly ? (
+                <span className="px-4 py-2.5 bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold border border-emerald-300 flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-emerald-700" />
+                  Return Locked (Submitted)
                 </span>
-              </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition cursor-pointer disabled:opacity-60"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{isSubmitting ? 'Submitting Return...' : 'Submit Official MPR'}</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
       </form>
-
-      {/* History Table */}
-      {existingReports.length > 0 && (
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
-            <History className="w-5 h-5 text-slate-600" />
-            <h3 className="text-base font-bold text-slate-900">
-              Submitted Returns Archive ({hospital?.hospital_name})
-            </h3>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase">
-                  <th className="py-2.5 px-3">Month/Year</th>
-                  <th className="py-2.5 px-3 text-center">Total OPD</th>
-                  <th className="py-2.5 px-3 text-center">IPD</th>
-                  <th className="py-2.5 px-3 text-center">Panchakarma</th>
-                  <th className="py-2.5 px-3 text-center">Total Levi</th>
-                  <th className="py-2.5 px-3">Submitted By</th>
-                  <th className="py-2.5 px-3">Timestamp</th>
-                  <th className="py-2.5 px-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {existingReports.map((r) => {
-                  const m = r.other_metrics || {};
-                  const lev = m.levi?.total_levi || 0;
-                  const ipd = m.ipd_patients?.total || m.ipd_admissions || 0;
-
-                  return (
-                    <tr key={r.id} className="hover:bg-slate-50 transition">
-                      <td className="py-2.5 px-3 font-bold text-emerald-800">{r.month_year}</td>
-                      <td className="py-2.5 px-3 text-center font-bold">{r.opd_count}</td>
-                      <td className="py-2.5 px-3 text-center">{ipd}</td>
-                      <td className="py-2.5 px-3 text-center">{r.panchakarma_count}</td>
-                      <td className="py-2.5 px-3 text-center font-bold text-emerald-900">₹{lev}</td>
-                      <td className="py-2.5 px-3 font-medium text-slate-800">{r.officer_name}</td>
-                      <td className="py-2.5 px-3 text-slate-500">
-                        {new Date(r.submitted_at).toLocaleDateString('en-IN')}
-                      </td>
-                      <td className="py-2.5 px-3 text-right">
-                        <button
-                          onClick={() => setPrintModalReport(r)}
-                          className="px-2.5 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg text-[11px] font-bold inline-flex items-center gap-1 cursor-pointer transition"
-                        >
-                          <Printer className="w-3.5 h-3.5" />
-                          <span>PDF</span>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
       {/* PDF / Print Modal */}
       {printModalReport && (
