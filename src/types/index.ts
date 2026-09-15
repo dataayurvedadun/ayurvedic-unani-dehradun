@@ -5,9 +5,12 @@ export interface HospitalMaster {
   hospital_name: string;
   assigned_password: string;
   block_name: string;
+  category?: string;
+  uid?: string;
   contact_phone?: string;
   created_at?: string;
 }
+
 
 export interface MedicineItem {
   id: string;

@@ -21,9 +21,9 @@ export const AdminHospitals: React.FC = () => {
 
   // Add Hospital state
   const [name, setName] = useState<string>('');
-  const [block, setBlock] = useState<string>('Dehradun Sadar');
+  const [category, setCategory] = useState<string>('State Ayurvedic Dispensary');
+  const [uid, setUid] = useState<string>('');
   const [password, setPassword] = useState<string>('ayush@123');
-  const [phone, setPhone] = useState<string>('');
 
   // Password edit state
   const [editingHospId, setEditingHospId] = useState<string | null>(null);
@@ -44,16 +44,19 @@ export const AdminHospitals: React.FC = () => {
     if (!name.trim()) return;
 
     try {
+      const generatedUid = uid.trim() || `DDN${String(hospitals.length + 1).padStart(3, '0')}`;
       const added = await dbService.addHospital({
         hospital_name: name.trim(),
-        block_name: block.trim(),
+        block_name: category.trim(),
+        category: category.trim(),
         assigned_password: password.trim() || 'ayush@123',
-        contact_phone: phone.trim() || undefined,
+        contact_phone: generatedUid,
+        uid: generatedUid,
       });
 
       await dbService.addActivityLog({
         action: 'New Facility Enrolled',
-        details: `Enrolled ${added.hospital_name} (${added.block_name})`,
+        details: `Enrolled ${added.hospital_name} [${generatedUid}] (${category.trim()})`,
         user: 'District Ayurvedic Officer (Admin)',
         timestamp: new Date().toISOString(),
         category: 'admin',
@@ -62,8 +65,8 @@ export const AdminHospitals: React.FC = () => {
       setHospitals((prev) => [...prev, added]);
       setIsAddModalOpen(false);
       setName('');
-      setPhone('');
-      setNotification(`Facility "${added.hospital_name}" enrolled successfully.`);
+      setUid('');
+      setNotification(`Facility "${added.hospital_name}" [${generatedUid}] enrolled successfully.`);
     } catch (err: any) {
       setNotification(`Failed to add hospital: ${err.message}`);
     }
@@ -89,7 +92,10 @@ export const AdminHospitals: React.FC = () => {
   const filteredHospitals = hospitals.filter(
     (h) =>
       h.hospital_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      h.block_name.toLowerCase().includes(searchTerm.toLowerCase())
+      h.block_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (h.uid && h.uid.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (h.contact_phone && h.contact_phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (h.category && h.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -158,10 +164,10 @@ export const AdminHospitals: React.FC = () => {
             <thead className="bg-slate-100/80 text-slate-700 font-semibold border-b border-slate-200 uppercase text-[11px] tracking-wider">
               <tr>
                 <th className="py-3 px-4 w-12 text-center">#</th>
+                <th className="py-3 px-4 w-28">UID</th>
                 <th className="py-3 px-4">Hospital / Dispensary Name</th>
-                <th className="py-3 px-4 w-36">Block</th>
-                <th className="py-3 px-4 w-60">Assigned Access Password</th>
-                <th className="py-3 px-4 w-36 text-right">Contact</th>
+                <th className="py-3 px-4 w-60">Category</th>
+                <th className="py-3 px-4 w-60">Assigned Password</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -170,6 +176,11 @@ export const AdminHospitals: React.FC = () => {
                   <td className="py-3 px-4 text-center text-xs text-slate-400 font-mono">
                     {idx + 1}
                   </td>
+                  <td className="py-3 px-4">
+                    <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded border border-emerald-200">
+                      {hosp.uid || hosp.contact_phone || `DDN${String(idx + 1).padStart(3, '0')}`}
+                    </span>
+                  </td>
                   <td className="py-3 px-4 font-semibold text-slate-900">
                     <div className="flex items-center gap-2">
                       <Building2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
@@ -177,7 +188,9 @@ export const AdminHospitals: React.FC = () => {
                     </div>
                   </td>
                   <td className="py-3 px-4 text-xs font-medium text-slate-600">
-                    {hosp.block_name}
+                    <span className="inline-block px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                      {hosp.category || hosp.block_name || 'Ayurvedic Facility'}
+                    </span>
                   </td>
                   <td className="py-3 px-4">
                     {editingHospId === hosp.id ? (
@@ -235,9 +248,6 @@ export const AdminHospitals: React.FC = () => {
                       </div>
                     )}
                   </td>
-                  <td className="py-3 px-4 text-right text-xs text-slate-500 font-mono">
-                    {hosp.contact_phone || '—'}
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -262,22 +272,37 @@ export const AdminHospitals: React.FC = () => {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Government Ayurvedic Dispensary, Doiwala"
+                  placeholder="e.g. Sahastradhara, Raiwala, Rishikesh"
                   className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-900"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                  Block / Tehsil <span className="text-red-500">*</span>
+                  Category / Classification <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-900"
+                >
+                  <option value="State Ayurvedic Dispensary">State Ayurvedic Dispensary (SAD)</option>
+                  <option value="District Ayurvedic Hospital">District Ayurvedic Hospital</option>
+                  <option value="CHC / PHC / Ayush Wing">CHC / PHC / Ayush Wing</option>
+                  <option value="Government Homoeopathic / Unani Dispensary">Government Homoeopathic / Unani Dispensary</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                  Facility Assigned UID (Optional - auto-assigned if blank)
                 </label>
                 <input
                   type="text"
-                  required
-                  value={block}
-                  onChange={(e) => setBlock(e.target.value)}
-                  placeholder="e.g. Dehradun Sadar, Rishikesh, Chakrata"
-                  className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-900"
+                  value={uid}
+                  onChange={(e) => setUid(e.target.value.toUpperCase())}
+                  placeholder={`e.g. DDN${String(hospitals.length + 1).padStart(3, '0')}`}
+                  className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-mono"
                 />
               </div>
 
@@ -290,20 +315,7 @@ export const AdminHospitals: React.FC = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="e.g. ayush@ddn123"
-                  className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                  Contact Phone (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+91 135-xxxxxxx"
+                  placeholder="ayush@123"
                   className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-mono"
                 />
               </div>

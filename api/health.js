@@ -42,7 +42,9 @@ export default async function handler(req, res) {
     // Lightweight keep-alive query against hospitals_master
     const { count, error } = await supabase
       .from('hospitals_master')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', head: true })
+      .like('contact_phone', 'DDN%');
+
 
     if (error) {
       throw error;

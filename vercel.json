@@ -1,6 +1,12 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "crons": [
+    {
+      "path": "/api/health",
+      "schedule": "0 4 */2 * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/health",

@@ -179,14 +179,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                     >
                       {hospitals.map((hosp) => (
                         <option key={hosp.id} value={hosp.id}>
-                          {hosp.hospital_name} ({hosp.block_name})
+                          [{hosp.uid || hosp.contact_phone || 'DDN'}] {hosp.hospital_name} ({hosp.category || hosp.block_name})
                         </option>
                       ))}
                     </select>
                   </div>
                   <p className="mt-1 text-xs text-slate-500">
-                    Choose from {hospitals.length} pre-registered Ayurvedic & Unani centers in Dehradun.
+                    Choose from {hospitals.length} registered State Ayurvedic Dispensaries, District Hospitals & CHCs.
                   </p>
+
                 </div>
 
                 <div>
@@ -333,14 +334,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
               <div
                 onClick={() => {
                   setActiveTab('hospital');
-                  fillQuickDoctorDemo('Tilak Road', 'Dr. Ramesh Chandra Nautiyal (AMO)');
+                  fillQuickDoctorDemo('Sahastradhara', 'Dr. Ramesh Chandra (AMO)');
                 }}
                 className="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-teal-500/50 cursor-pointer transition flex items-center justify-between group"
               >
                 <div>
                   <div className="text-xs font-semibold text-teal-300 flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5 text-teal-400" />
-                    Ayurvedic Hospital, Tilak Road
+                    [DDN001] Sahastradhara Dispensary
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono mt-0.5">
                     Password: <span className="text-white font-bold">ayush@123</span>
@@ -360,7 +361,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                 <div>
                   <div className="text-xs font-semibold text-teal-300 flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5 text-teal-400" />
-                    Ayurvedic Hospital, Rishikesh
+                    [DDN035] Rishikesh Dispensary
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono mt-0.5">
                     Password: <span className="text-white font-bold">ayush@123</span>
@@ -373,14 +374,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
               <div
                 onClick={() => {
                   setActiveTab('hospital');
-                  fillQuickDoctorDemo('Vikasnagar', 'Dr. Vikram Singh Rawat');
+                  fillQuickDoctorDemo('Doiwala', 'Dr. Vikram Rawat (MO)');
                 }}
                 className="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-teal-500/50 cursor-pointer transition flex items-center justify-between group"
               >
                 <div>
                   <div className="text-xs font-semibold text-teal-300 flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5 text-teal-400" />
-                    Ayurvedic Dispensary, Vikasnagar
+                    [DDN081] Doiwala CHC / Ayush Wing
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono mt-0.5">
                     Password: <span className="text-white font-bold">ayush@123</span>
@@ -390,6 +391,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
               </div>
             </div>
           </div>
+
 
 
           {/* Anti-Sleep Free-Tier Info Badge */}

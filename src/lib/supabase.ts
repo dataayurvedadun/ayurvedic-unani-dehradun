@@ -36,7 +36,7 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured()
 
 // Local Storage Keys for offline / demo mode fallback
 const STORAGE_KEYS = {
-  HOSPITALS: 'ayush_ddn_hospitals_v2',
+  HOSPITALS: 'ayush_ddn_hospitals_v3',
 
   MEDICINES: 'ayush_ddn_medicines_v1',
   FORMS: 'ayush_ddn_forms_v1',
@@ -83,11 +83,12 @@ export const dbService = {
     try {
       const { count, error } = await supabase
         .from('hospitals_master')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .like('contact_phone', 'DDN%');
       if (error) throw error;
       return {
         success: true,
-        message: `Connected to Supabase PostgreSQL. Hospitals in DB: ${count ?? 0}`,
+        message: `Connected to Supabase PostgreSQL. Registered facilities: ${count ?? 0}`,
         latency_ms: Date.now() - start,
       };
     } catch (err: any) {
@@ -106,14 +107,22 @@ export const dbService = {
         const { data, error } = await supabase
           .from('hospitals_master')
           .select('*')
-          .order('hospital_name', { ascending: true });
-        if (!error && data && data.length > 0) return data as HospitalMaster[];
+          .like('contact_phone', 'DDN%')
+          .order('contact_phone', { ascending: true });
+        if (!error && data && data.length > 0) {
+          return data.map((h: any) => ({
+            ...h,
+            uid: h.contact_phone || h.uid || h.id,
+            category: h.category || h.block_name || 'State Ayurvedic Dispensary',
+          })) as HospitalMaster[];
+        }
       } catch (err) {
         console.warn('Failed to fetch hospitals from Supabase, using local data', err);
       }
     }
     return getLocal<HospitalMaster[]>(STORAGE_KEYS.HOSPITALS, INITIAL_HOSPITALS);
   },
+
 
   async addHospital(hospital: Omit<HospitalMaster, 'id'>): Promise<HospitalMaster> {
     const newHospital: HospitalMaster = {
