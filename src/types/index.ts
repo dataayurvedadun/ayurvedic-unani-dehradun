@@ -20,7 +20,55 @@ export interface MedicineItem {
   uploaded_at?: string;
 }
 
+export interface DemographicMetric {
+  male: number;
+  female: number;
+  other: number;
+  total: number;
+}
+
+export interface CampBeneficiariesMetric {
+  male: number;
+  female: number;
+  other: number;
+  children: number;
+  total: number;
+}
+
+export interface LeviMetric {
+  opd_levi: number;
+  panchakarma_levi: number;
+  medical_levi: number;
+  other_levi: number;
+  total_levi: number;
+}
+
+export interface DiseaseMorbidityEntry {
+  sNo: number;
+  hindi: string;
+  english: string;
+  new_cases: number;
+  old_cases: number;
+  total_cases: number;
+}
+
 export interface OtherMprMetrics {
+  // Revised Comprehensive MPR Fields
+  new_opd?: DemographicMetric;
+  old_opd?: DemographicMetric;
+  ipd_patients?: DemographicMetric;
+  panchakarma_patients?: DemographicMetric;
+  levi?: LeviMetric;
+  mobile_seeded?: number;
+  aadhaar_seeded?: number;
+  patients_outside_dehradun?: number;
+  patients_foreigners?: number;
+  total_camps?: number;
+  camp_beneficiaries?: CampBeneficiariesMetric;
+  yoga_beneficiaries?: DemographicMetric;
+  disease_details?: Record<string, DiseaseMorbidityEntry>;
+
+  // Legacy backwards-compatible fields
   opd_male?: number;
   opd_female?: number;
   opd_child?: number;
