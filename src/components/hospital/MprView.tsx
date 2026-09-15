@@ -377,60 +377,54 @@ export const MprView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Month Selection Tabs */}
-      <div className="space-y-2 no-print">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+      {/* Reporting Period (माहवार प्रगति आख्या) Dropdown Selector */}
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-print">
+        <div>
+          <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <Calendar className="w-4 h-4 text-emerald-700" />
             Reporting Period (माहवार प्रगति आख्या)
-          </span>
+          </label>
           <span className="text-[11px] text-slate-500">
-            Current month opens for submission on the last day of the month
+            Select reporting month to view submitted returns or file pending returns.
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2.5">
-          {availableMonths.map((m) => {
-            const isSub = submittedMonthSet.has(m.value);
-            const isSelected = selectedMonth === m.value;
-            const subRec = existingReports.find((r) => r.month_year === m.value);
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+          {/* Status Badge for Selected Month */}
+          {submittedMonthSet.has(selectedMonth) ? (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex-shrink-0">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              SUBMITTED
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300 flex-shrink-0">
+              <Clock className="w-3.5 h-3.5 text-amber-600" />
+              PENDING
+            </span>
+          )}
 
-            return (
-              <div
-                key={m.value}
-                onClick={() => setSelectedMonth(m.value)}
-                className={`p-3 rounded-2xl border transition cursor-pointer text-left ${
-                  isSelected
-                    ? 'bg-emerald-900 text-white border-emerald-900 shadow-md ring-2 ring-emerald-500/20'
-                    : 'bg-white hover:bg-slate-50 text-slate-900 border-slate-200'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="font-bold text-xs truncate">{m.label}</span>
-                  {isSub ? (
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
-                      SUBMITTED
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-amber-100 text-amber-900 border border-amber-300">
-                      <Clock className="w-2.5 h-2.5 text-amber-600" />
-                      PENDING
-                    </span>
-                  )}
-                </div>
+          {/* Month Dropdown Button */}
+          <div className="relative min-w-[240px] sm:min-w-[300px]">
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="w-full pl-3 pr-8 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs"
+            >
+              {availableMonths.map((m) => {
+                const isSub = submittedMonthSet.has(m.value);
+                const subRec = existingReports.find((r) => r.month_year === m.value);
+                const statusText = isSub
+                  ? `✓ [SUBMITTED${subRec ? ` - ${new Date(subRec.submitted_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}` : ''}]`
+                  : `⏳ [PENDING]`;
 
-                <div className={`text-[10px] mt-1 ${isSelected ? 'text-emerald-200' : 'text-slate-500'}`}>
-                  {isSub && subRec ? (
-                    <span>
-                      Submitted: {new Date(subRec.submitted_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                    </span>
-                  ) : (
-                    <span>Click to fill & submit return</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+                return (
+                  <option key={m.value} value={m.value}>
+                    {m.label} — {statusText}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
         </div>
       </div>
 
