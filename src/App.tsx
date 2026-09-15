@@ -5,6 +5,7 @@ import { LoginModal } from './components/LoginModal';
 import { HospitalPortal } from './components/hospital/HospitalPortal';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { AntiSleepModal } from './components/AntiSleepModal';
+import { InstallPwaModal } from './components/InstallPwaModal';
 import { Activity, ShieldCheck, Heart } from 'lucide-react';
 
 const MainApp: React.FC = () => {
@@ -71,6 +72,9 @@ const MainApp: React.FC = () => {
         isOpen={isAntiSleepOpen}
         onClose={() => setIsAntiSleepOpen(false)}
       />
+
+      {/* PWA Install Banner & Guidance Modal */}
+      <InstallPwaModal />
     </div>
   );
 };

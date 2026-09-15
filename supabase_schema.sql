@@ -207,30 +207,6 @@ INSERT INTO hospitals_master (hospital_name, assigned_password, block_name, cont
 ON CONFLICT (hospital_name) DO UPDATE SET assigned_password = EXCLUDED.assigned_password, block_name = EXCLUDED.block_name, contact_phone = EXCLUDED.contact_phone;
 
 
--- Seed Classical Medicines
-INSERT INTO admin_uploads (category, medicine_name, pack_size) VALUES
-('Classical Medicine', 'Triphala Churna', '100 gm'),
-('Classical Medicine', 'Sitopaladi Churna', '60 gm'),
-('Classical Medicine', 'Ashwagandharishta', '450 ml'),
-('Classical Medicine', 'Draksharishta', '450 ml'),
-('Classical Medicine', 'Amritarishta', '450 ml'),
-('Classical Medicine', 'Dashmularishta', '450 ml'),
-('Classical Medicine', 'Chyawanprash Awaleha', '500 gm'),
-('Classical Medicine', 'Khadiradi Vati', '40 tab'),
-('Classical Medicine', 'Sanjivani Vati', '40 tab'),
-('Classical Medicine', 'Arogyavardhini Vati', '40 tab'),
-('Classical Medicine', 'Chandraprabha Vati', '40 tab'),
-('Classical Medicine', 'Yograj Guggulu', '40 tab'),
-('Classical Medicine', 'Kaishore Guggulu', '40 tab'),
-('Classical Medicine', 'Mahanarayan Taila', '100 ml'),
-('Classical Medicine', 'Pinda Taila', '100 ml'),
-('Classical Medicine', 'Kasis Bhasma', '10 gm'),
-('Classical Medicine', 'Shankh Bhasma', '10 gm'),
-('Classical Medicine', 'Hingwashtak Churna', '100 gm'),
-('Classical Medicine', 'Avipattikar Churna', '100 gm'),
-('Classical Medicine', 'Mahasudarshan Churna', '100 gm')
-ON CONFLICT DO NOTHING;
-
 -- Seed Official Patent Medicines List 1 (84 Formulations)
 INSERT INTO admin_uploads (category, medicine_name, pack_size) VALUES
 ('Patent Medicine', 'Amavatari cap', '40 cap'),
@@ -319,18 +295,3 @@ INSERT INTO admin_uploads (category, medicine_name, pack_size) VALUES
 ('Patent Medicine', 'Amlax Granules', '100 GM')
 ON CONFLICT DO NOTHING;
 
--- Seed Sample Dynamic Admin Form
-INSERT INTO dynamic_forms (form_title, description, form_fields, is_active) VALUES
-(
-    'Monsoon Disease Preparedness & Stock Audit 2026',
-    'Special survey by District Ayurvedic Officer Dehradun regarding availability of ORS, emergency fever medicines, water purification, and vector-borne illness cases.',
-    '[
-        {"id": "emergency_stock_status", "label": "Status of Emergency Fever & Diarrhea Medicines", "type": "select", "options": ["Adequate (>30 days)", "Moderate (15-30 days)", "Critical Shortage (<15 days)"], "required": true},
-        {"id": "water_purification_tablets", "label": "Halazone / Chlorine Tablets Available (Count)", "type": "number", "required": true, "placeholder": "e.g. 500"},
-        {"id": "dengue_chikungunya_cases", "label": "Total Suspected Vector-Borne Cases Treated This Month", "type": "number", "required": true, "placeholder": "0"},
-        {"id": "panchakarma_equipment_operational", "label": "Are Panchakarma Droni & Steam Chambers Fully Operational?", "type": "select", "options": ["Yes - Fully Functional", "Partially Functional", "Requires Maintenance", "Not Installed"], "required": true},
-        {"id": "inspection_remarks", "label": "Infrastructure Remarks / Urgent Requirements", "type": "textarea", "required": false, "placeholder": "Mention roof seepage, electricity backup, or staff shortages if any..."}
-    ]'::jsonb,
-    true
-)
-ON CONFLICT DO NOTHING;

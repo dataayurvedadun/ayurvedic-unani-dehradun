@@ -37,12 +37,12 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured()
 // Local Storage Keys for offline / demo mode fallback
 const STORAGE_KEYS = {
   HOSPITALS: 'ayush_ddn_hospitals_v3',
-  MEDICINES: 'ayush_ddn_medicines_v2',
-  FORMS: 'ayush_ddn_forms_v1',
-  FORM_RESPONSES: 'ayush_ddn_form_responses_v1',
-  MPR: 'ayush_ddn_mpr_v1',
-  DEMANDS: 'ayush_ddn_demands_v1',
-  LOGS: 'ayush_ddn_logs_v1',
+  MEDICINES: 'ayush_ddn_medicines_v3',
+  FORMS: 'ayush_ddn_forms_v2',
+  FORM_RESPONSES: 'ayush_ddn_form_responses_v2',
+  MPR: 'ayush_ddn_mpr_v2',
+  DEMANDS: 'ayush_ddn_demands_v2',
+  LOGS: 'ayush_ddn_logs_v2',
 };
 
 // Local storage helpers

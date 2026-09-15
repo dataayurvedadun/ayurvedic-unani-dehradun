@@ -10,6 +10,7 @@ import {
   User,
   ExternalLink,
   Info,
+  Download,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -22,6 +23,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAntiSleepModal }) => {
     isSupabase: false,
     message: 'Checking...',
   });
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [isStandalone, setIsStandalone] = useState<boolean>(false);
 
   useEffect(() => {
     const isConfig = dbService.isConfigured();
@@ -38,7 +41,37 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAntiSleepModal }) => {
         message: 'Free Tier Ready (Local Store)',
       });
     }
+
+    if (
+      typeof window !== 'undefined' &&
+      (window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true)
+    ) {
+      setIsStandalone(true);
+      return;
+    }
+
+    const handleBeforeInstall = (e: any) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
   }, []);
+
+  const handleInstallApp = async () => {
+    if (installPrompt) {
+      await installPrompt.prompt();
+      const res = await installPrompt.userChoice;
+      if (res.outcome === 'accepted') {
+        setInstallPrompt(null);
+      }
+    } else {
+      // Dispatch custom event for iOS or generic install guidance
+      window.dispatchEvent(new CustomEvent('open-pwa-install'));
+    }
+  };
 
   return (
     <header className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white shadow-lg border-b border-emerald-700/40 sticky top-0 z-40">
@@ -53,6 +86,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAntiSleepModal }) => {
           <span className="hidden sm:inline">District Dehradun Central Repository</span>
         </div>
         <div className="flex items-center gap-3">
+          {!isStandalone && (
+            <button
+              onClick={handleInstallApp}
+              className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-colors cursor-pointer text-[11px] shadow-sm border border-emerald-400/40"
+              title="Install AYUSH Dehradun App on your Phone or Computer"
+            >
+              <Download className="w-3 h-3 text-emerald-100" />
+              <span>Install App</span>
+            </button>
+          )}
+
           <button
             onClick={onOpenAntiSleepModal}
             className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-800/60 hover:bg-emerald-700/60 text-emerald-200 transition-colors cursor-pointer text-[11px]"

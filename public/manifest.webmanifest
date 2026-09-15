@@ -1,0 +1,63 @@
+{
+  "id": "/",
+  "name": "Ayurvedic Unani Services, District Dehradun",
+  "short_name": "Ayush Dehradun",
+  "description": "District Dehradun Central MIS Portal for Ayurvedic & Unani Health Facilities, Medicine Demands, and Monthly Progress Reports.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#064e3b",
+  "theme_color": "#047857",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["medical", "health", "government", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hospital Login",
+      "short_name": "Hospital",
+      "description": "Log into Health Facility Portal",
+      "url": "/?action=hospital_login",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Admin Portal",
+      "short_name": "Admin",
+      "description": "District Administrative Dashboard",
+      "url": "/?action=admin_login",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}
