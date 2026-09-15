@@ -321,33 +321,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
               <span className="text-emerald-400 font-semibold">Govt. of Uttarakhand</span>
             </div>
           </div>
-
-
-
-          {/* Anti-Sleep Free-Tier Info Badge */}
-          <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-200">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-800 flex-shrink-0">
-                <CheckCircle2 className="w-5 h-5 text-emerald-700" />
-              </div>
-              <div className="text-xs text-slate-700">
-                <h4 className="font-bold text-slate-900 text-sm mb-1">
-                  100% Free Hosting & Anti-Sleep
-                </h4>
-                <p className="leading-relaxed text-slate-600 mb-2">
-                  Pre-configured with <code className="bg-emerald-100/80 px-1 py-0.5 rounded text-emerald-800 font-mono">/api/health</code> endpoint to ping Supabase via free cron triggers (e.g. cron-job.org) so your database never sleeps.
-                </p>
-                <button
-                  onClick={onOpenAntiSleepModal}
-                  className="text-emerald-700 hover:text-emerald-900 font-semibold inline-flex items-center gap-1 underline text-xs cursor-pointer"
-                >
-                  View Anti-Sleep Setup & Vercel Guide
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   );
 };
+
