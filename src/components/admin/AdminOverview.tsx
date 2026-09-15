@@ -130,12 +130,27 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
   const currentDriveSubmissionsMap = useMemo(() => {
     const map: Record<string, MedicineDriveSubmission> = {};
     driveSubmissions.forEach((s) => {
-      if (!selectedDriveId || s.drive_id === selectedDriveId) {
-        map[s.hospital_id] = s;
+      const matchDrive =
+        !selectedDriveId ||
+        s.drive_id === selectedDriveId ||
+        ((selectedDriveId === 'drive-patent-list-1' || selectedDriveId === 'afbf6fed-8700-45f7-9fd8-eacbf103a65d') &&
+          (s.drive_id === 'drive-patent-list-1' || s.drive_id === 'afbf6fed-8700-45f7-9fd8-eacbf103a65d'));
+      if (matchDrive) {
+        if (s.hospital_id) map[s.hospital_id] = s;
+        if (s.hospital_uid) map[s.hospital_uid] = s;
+        if (s.hospital_name) map[s.hospital_name.toLowerCase()] = s;
       }
     });
     return map;
   }, [driveSubmissions, selectedDriveId]);
+
+  const getHospDriveSub = (h: { id: string; uid?: string; hospital_name?: string }) => {
+    return (
+      currentDriveSubmissionsMap[h.id] ||
+      (h.uid ? currentDriveSubmissionsMap[h.uid] : undefined) ||
+      (h.hospital_name ? currentDriveSubmissionsMap[h.hospital_name.toLowerCase()] : undefined)
+    );
+  };
 
   // Set of hospital IDs that submitted MPR for selectedMonth
   const hospitalsWithMpr = useMemo(() => {
@@ -146,7 +161,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
   const totalHospitals = hospitals.length;
 
   const demandSubmittedCount = hospitals.filter((h) => {
-    if (currentDriveSubmissionsMap[h.id]) return true;
+    if (getHospDriveSub(h)) return true;
     if (!selectedDriveId && demands.some((d) => d.hospital_id === h.id)) return true;
     return false;
   }).length;
@@ -162,7 +177,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
 
   // Filtered hospital status list
   const filteredHospitals = hospitals.filter((h) => {
-    const hasDemand = Boolean(currentDriveSubmissionsMap[h.id]) || (!selectedDriveId && demands.some((d) => d.hospital_id === h.id));
+    const hasDemand = Boolean(getHospDriveSub(h)) || (!selectedDriveId && demands.some((d) => d.hospital_id === h.id));
     const hasMpr = hospitalsWithMpr.has(h.id);
 
     const matchesSearch =
@@ -499,7 +514,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({ onNavigateTab }) =
               ) : (
                 filteredHospitals.map((hosp, idx) => {
                   // Demand submission for selected drive
-                  const hospDriveSub = currentDriveSubmissionsMap[hosp.id];
+                  const hospDriveSub = getHospDriveSub(hosp);
                   const legacyHospDemands = demands.filter((d) => d.hospital_id === hosp.id);
                   const hasDemand = Boolean(hospDriveSub) || (!selectedDriveId && legacyHospDemands.length > 0);
 

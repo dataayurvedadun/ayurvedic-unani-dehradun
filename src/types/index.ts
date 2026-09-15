@@ -157,6 +157,7 @@ export interface MedicineDriveSubmission {
   total_varieties: number;
   total_units: number;
   submitted_at: string;
+  hospital_uid?: string;
 }
 
 export interface MedicineDemandResponse {

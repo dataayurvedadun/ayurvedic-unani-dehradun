@@ -44,7 +44,17 @@ export const MedicineDemandsView: React.FC = () => {
     // Load submissions for all drives for this hospital
     const subsMap: Record<string, MedicineDriveSubmission> = {};
     for (const d of allDrives) {
-      const subs = await dbService.getDriveSubmissions(d.id, hospital.id);
+      let subs = await dbService.getDriveSubmissions(d.id, hospital.id);
+      if (!subs || subs.length === 0) {
+        if (hospital.uid) {
+          subs = await dbService.getDriveSubmissions(d.id, hospital.uid);
+        }
+      }
+      if (!subs || subs.length === 0) {
+        if (hospital.hospital_name) {
+          subs = await dbService.getDriveSubmissions(d.id, hospital.hospital_name);
+        }
+      }
       if (subs && subs.length > 0) {
         subsMap[d.id] = subs[0];
       }

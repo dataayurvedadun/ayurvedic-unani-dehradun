@@ -100,10 +100,20 @@ export const AdminMedicineDemands: React.FC = () => {
   // Submission map by hospital_id
   const submissionByHospital: Record<string, MedicineDriveSubmission> = {};
   submissions.forEach((s) => {
-    submissionByHospital[s.hospital_id] = s;
+    if (s.hospital_id) submissionByHospital[s.hospital_id] = s;
+    if (s.hospital_uid) submissionByHospital[s.hospital_uid] = s;
+    if (s.hospital_name) submissionByHospital[s.hospital_name.toLowerCase()] = s;
   });
 
-  const submittedCount = Object.keys(submissionByHospital).length;
+  const getHospSub = (h: HospitalMaster) => {
+    return (
+      submissionByHospital[h.id] ||
+      (h.uid ? submissionByHospital[h.uid] : undefined) ||
+      (h.hospital_name ? submissionByHospital[h.hospital_name.toLowerCase()] : undefined)
+    );
+  };
+
+  const submittedCount = hospitals.filter((h) => Boolean(getHospSub(h))).length;
   const pendingCount = hospitals.length - submittedCount;
 
   // Group demand quantities by medicine
@@ -273,7 +283,7 @@ export const AdminMedicineDemands: React.FC = () => {
 
     // Also add Facility Compliance sheet
     const complianceRows = hospitals.map((hosp, idx) => {
-      const sub = submissionByHospital[hosp.id];
+      const sub = getHospSub(hosp);
       return {
         '#': idx + 1,
         'UID': hosp.uid || hosp.contact_phone || '—',
@@ -684,7 +694,7 @@ export const AdminMedicineDemands: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {filteredHospitals.map((hosp, idx) => {
-                  const sub = submissionByHospital[hosp.id];
+                  const sub = getHospSub(hosp);
                   const isSubmitted = Boolean(sub);
 
                   return (

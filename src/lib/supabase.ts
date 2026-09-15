@@ -18,6 +18,7 @@ import {
   INITIAL_DEMANDS,
   INITIAL_ACTIVITY_LOGS,
   INITIAL_DEMAND_DRIVES,
+  INITIAL_DRIVE_SUBMISSIONS,
 } from './seedData';
 
 // Supabase Environment variables
@@ -626,8 +627,16 @@ export const dbService = {
     if (supabase) {
       try {
         let query = supabase.from('dynamic_form_responses').select('*');
-        if (driveId) query = query.eq('form_id', driveId);
-        if (hospitalId) query = query.eq('hospital_id', hospitalId);
+        if (driveId) {
+          if (driveId === 'drive-patent-list-1' || driveId === 'afbf6fed-8700-45f7-9fd8-eacbf103a65d') {
+            query = query.in('form_id', ['drive-patent-list-1', 'afbf6fed-8700-45f7-9fd8-eacbf103a65d']);
+          } else {
+            query = query.eq('form_id', driveId);
+          }
+        }
+        if (hospitalId) {
+          query = query.or(`hospital_id.eq.${hospitalId},response_data->>hospital_uid.eq.${hospitalId}`);
+        }
         const { data, error } = await query.order('submitted_at', { ascending: false });
         if (!error && data && data.length > 0) {
           return data
@@ -635,7 +644,7 @@ export const dbService = {
             .map((row: any) => ({
               id: row.id,
               drive_id: row.form_id,
-              drive_title: row.response_data?.drive_title || 'Medicine Demand List',
+              drive_title: row.response_data?.drive_title || 'Patent Medicine List 1',
               hospital_id: row.hospital_id,
               hospital_name: row.hospital_name,
               officer_name: row.officer_name,
@@ -643,6 +652,7 @@ export const dbService = {
               total_varieties: row.response_data?.total_varieties || 0,
               total_units: row.response_data?.total_units || 0,
               submitted_at: row.submitted_at,
+              hospital_uid: row.response_data?.hospital_uid || '',
             }));
         }
       } catch (err) {
@@ -650,9 +660,23 @@ export const dbService = {
       }
     }
 
-    let allSubs = getLocal<MedicineDriveSubmission[]>(STORAGE_KEYS.DRIVE_SUBMISSIONS, []);
-    if (driveId) allSubs = allSubs.filter((s) => s.drive_id === driveId);
-    if (hospitalId) allSubs = allSubs.filter((s) => s.hospital_id === hospitalId);
+    let allSubs = getLocal<MedicineDriveSubmission[]>(STORAGE_KEYS.DRIVE_SUBMISSIONS, INITIAL_DRIVE_SUBMISSIONS);
+    if (driveId) {
+      allSubs = allSubs.filter(
+        (s) =>
+          s.drive_id === driveId ||
+          ((driveId === 'drive-patent-list-1' || driveId === 'afbf6fed-8700-45f7-9fd8-eacbf103a65d') &&
+            (s.drive_id === 'drive-patent-list-1' || s.drive_id === 'afbf6fed-8700-45f7-9fd8-eacbf103a65d'))
+      );
+    }
+    if (hospitalId) {
+      allSubs = allSubs.filter(
+        (s) =>
+          s.hospital_id === hospitalId ||
+          s.hospital_uid === hospitalId ||
+          s.hospital_name?.toLowerCase() === hospitalId.toLowerCase()
+      );
+    }
     return allSubs;
   },
 };

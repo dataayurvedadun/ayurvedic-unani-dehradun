@@ -188,9 +188,12 @@ export const INITIAL_DEMANDS: MedicineDemandResponse[] = [];
 
 export const INITIAL_ACTIVITY_LOGS: ActivityLog[] = [];
  
+import { INITIAL_DRIVE_SUBMISSIONS } from './initialPatentDemands';
+export { INITIAL_DRIVE_SUBMISSIONS };
+
 export const INITIAL_DEMAND_DRIVES: MedicineDemandDrive[] = [
   {
-    id: 'drive-patent-list-1',
+    id: 'afbf6fed-8700-45f7-9fd8-eacbf103a65d',
     title: 'Patent Medicine List 1',
     category: 'Patent Medicine',
     batch_year: '2026-2027',
