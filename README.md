@@ -72,7 +72,8 @@ Architected for **100% Free-Tier Deployment** on **Vercel** (Frontend & Serverle
 
 ### Administrator (DAO Dehradun)
 - **Role**: District Admin
-- **Master Password**: `admin@ayush2026`
+- **Master Password**: `admin@123`
+
 
 ### Sample Pre-Configured Hospitals
 | Hospital / Dispensary Name | Block | Assigned Password |
@@ -132,7 +133,8 @@ The file `supabase_schema.sql` contains the complete PostgreSQL database structu
 4. Under **Environment Variables**, add:
    - `VITE_SUPABASE_URL`: Your Supabase Project URL
    - `VITE_SUPABASE_ANON_KEY`: Your Supabase `anon` key
-   - `VITE_ADMIN_PASSWORD`: `admin@ayush2026` (or your preferred admin password)
+   - `VITE_ADMIN_PASSWORD`: `admin@123` (or your preferred admin password)
+
 5. Click **Deploy**. Your application is live within 60 seconds!
 
 ### Step 3: Setup Anti-Sleep Cron (Keep Supabase Awake Forever)

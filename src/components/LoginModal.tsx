@@ -267,8 +267,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                     />
                   </div>
                   <p className="mt-1 text-xs text-slate-500">
-                    Default master key: <code className="bg-slate-100 text-emerald-700 px-1 py-0.5 rounded font-mono font-semibold">admin@ayush2026</code>
+                    Default master key: <code className="bg-slate-100 text-emerald-700 px-1 py-0.5 rounded font-mono font-semibold">admin@123</code>
                   </p>
+
                 </div>
 
                 <button
@@ -309,7 +310,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
               <div
                 onClick={() => {
                   setActiveTab('admin');
-                  setAdminPassword('admin@ayush2026');
+                  setAdminPassword('admin@123');
                   setError(null);
                 }}
                 className="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 cursor-pointer transition flex items-center justify-between group"
@@ -320,9 +321,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenAntiSleepModal }) 
                     District Admin (DAO Dehradun)
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    Password: <span className="text-white font-bold">admin@ayush2026</span>
+                    Password: <span className="text-white font-bold">admin@123</span>
                   </div>
                 </div>
+
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition" />
               </div>
 
