@@ -9,12 +9,12 @@
       "drive_title": "Patent Medicine List 1",
       "hospital_uid": "DDN001",
       "quantities": {
-        "med-p01": 30,
+        "med-p01": 50,
         "med-p02": 30,
         "med-p03": 30,
         "med-p04": 30,
         "med-p05": 40,
-        "med-p06": 30,
+        "med-p06": 100,
         "med-p07": 40,
         "med-p08": 30,
         "med-p09": 40,
@@ -28,15 +28,15 @@
         "med-p17": 60,
         "med-p18": 50,
         "med-p19": 30,
-        "med-p20": 20,
+        "med-p20": 50,
         "med-p21": 100,
         "med-p22": 50,
         "med-p23": 50,
         "med-p24": 100,
         "med-p25": 100,
         "med-p26": 100,
-        "med-p27": 30,
-        "med-p28": 30,
+        "med-p27": 100,
+        "med-p28": 100,
         "med-p29": 50,
         "med-p30": 50,
         "med-p31": 50,
@@ -54,10 +54,48 @@
         "med-p43": 30,
         "med-p44": 30,
         "med-p45": 50,
-        "med-p46": 100
+        "med-p46": 100,
+        "med-p47": 50,
+        "med-p48": 50,
+        "med-p49": 50,
+        "med-p50": 50,
+        "med-p51": 50,
+        "med-p52": 50,
+        "med-p53": 50,
+        "med-p54": 100,
+        "med-p55": 50,
+        "med-p56": 50,
+        "med-p57": 50,
+        "med-p58": 100,
+        "med-p59": 50,
+        "med-p60": 100,
+        "med-p61": 100,
+        "med-p62": 50,
+        "med-p63": 100,
+        "med-p64": 100,
+        "med-p65": 100,
+        "med-p66": 100,
+        "med-p67": 50,
+        "med-p68": 50,
+        "med-p69": 50,
+        "med-p70": 100,
+        "med-p71": 50,
+        "med-p72": 200,
+        "med-p73": 50,
+        "med-p74": 100,
+        "med-p75": 100,
+        "med-p76": 50,
+        "med-p77": 50,
+        "med-p78": 50,
+        "med-p79": 100,
+        "med-p80": 50,
+        "med-p81": 50,
+        "med-p82": 50,
+        "med-p83": 50,
+        "med-p84": 50
       },
-      "total_varieties": 46,
-      "total_units": 2365
+      "total_varieties": 84,
+      "total_units": 5275
     },
     "submitted_at": "2026-09-14T10:00:00.000Z"
   },
@@ -194,7 +232,6 @@
         "med-p21": 100,
         "med-p22": 100,
         "med-p23": 100,
-        "med-p24": 50,
         "med-p25": 100,
         "med-p26": 100,
         "med-p27": 100,
@@ -256,8 +293,8 @@
         "med-p83": 50,
         "med-p84": 50
       },
-      "total_varieties": 84,
-      "total_units": 7350
+      "total_varieties": 83,
+      "total_units": 7300
     },
     "submitted_at": "2026-09-14T10:12:00.000Z"
   },
@@ -549,6 +586,106 @@
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
+    "hospital_id": "e9f81445-af3c-4a9a-a400-4c0da04f195f",
+    "hospital_name": "Kyara",
+    "officer_name": "In-Charge Medical Officer",
+    "response_data": {
+      "type": "medicine_drive_submission",
+      "drive_title": "Patent Medicine List 1",
+      "hospital_uid": "DDN007",
+      "quantities": {
+        "med-p01": 50,
+        "med-p02": 50,
+        "med-p03": 50,
+        "med-p04": 50,
+        "med-p05": 50,
+        "med-p06": 100,
+        "med-p07": 50,
+        "med-p08": 100,
+        "med-p09": 100,
+        "med-p10": 50,
+        "med-p11": 30,
+        "med-p12": 100,
+        "med-p13": 50,
+        "med-p14": 50,
+        "med-p15": 30,
+        "med-p16": 20,
+        "med-p17": 40,
+        "med-p18": 40,
+        "med-p19": 50,
+        "med-p20": 20,
+        "med-p21": 50,
+        "med-p22": 40,
+        "med-p23": 50,
+        "med-p24": 50,
+        "med-p25": 100,
+        "med-p26": 50,
+        "med-p27": 20,
+        "med-p28": 40,
+        "med-p29": 50,
+        "med-p30": 30,
+        "med-p31": 40,
+        "med-p32": 50,
+        "med-p33": 50,
+        "med-p34": 40,
+        "med-p35": 50,
+        "med-p36": 30,
+        "med-p37": 50,
+        "med-p38": 50,
+        "med-p39": 100,
+        "med-p40": 30,
+        "med-p41": 40,
+        "med-p42": 30,
+        "med-p43": 30,
+        "med-p44": 50,
+        "med-p45": 30,
+        "med-p46": 30,
+        "med-p47": 20,
+        "med-p48": 40,
+        "med-p49": 40,
+        "med-p50": 30,
+        "med-p51": 50,
+        "med-p52": 40,
+        "med-p53": 40,
+        "med-p54": 30,
+        "med-p55": 30,
+        "med-p56": 20,
+        "med-p57": 50,
+        "med-p58": 50,
+        "med-p59": 100,
+        "med-p60": 100,
+        "med-p61": 100,
+        "med-p62": 100,
+        "med-p63": 100,
+        "med-p64": 100,
+        "med-p65": 100,
+        "med-p66": 300,
+        "med-p67": 40,
+        "med-p68": 100,
+        "med-p69": 100,
+        "med-p70": 100,
+        "med-p71": 100,
+        "med-p72": 100,
+        "med-p73": 100,
+        "med-p74": 50,
+        "med-p75": 50,
+        "med-p76": 100,
+        "med-p77": 50,
+        "med-p78": 30,
+        "med-p79": 500,
+        "med-p80": 50,
+        "med-p81": 50,
+        "med-p82": 30,
+        "med-p83": 30,
+        "med-p84": 30
+      },
+      "total_varieties": 84,
+      "total_units": 5310
+    },
+    "submitted_at": "2026-09-14T10:36:00.000Z"
+  },
+  {
+    "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
     "hospital_id": "b56564a8-b167-4053-b598-a4119451fbb1",
     "hospital_name": "Niranjanpur",
     "officer_name": "In-Charge Medical Officer",
@@ -645,7 +782,7 @@
       "total_varieties": 84,
       "total_units": 26020
     },
-    "submitted_at": "2026-09-14T10:36:00.000Z"
+    "submitted_at": "2026-09-14T10:42:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -745,7 +882,7 @@
       "total_varieties": 84,
       "total_units": 3736
     },
-    "submitted_at": "2026-09-14T10:42:00.000Z"
+    "submitted_at": "2026-09-14T10:48:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -845,7 +982,7 @@
       "total_varieties": 84,
       "total_units": 4235
     },
-    "submitted_at": "2026-09-14T10:48:00.000Z"
+    "submitted_at": "2026-09-14T10:54:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -944,7 +1081,7 @@
       "total_varieties": 83,
       "total_units": 8020
     },
-    "submitted_at": "2026-09-14T10:54:00.000Z"
+    "submitted_at": "2026-09-14T11:00:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -1044,7 +1181,7 @@
       "total_varieties": 84,
       "total_units": 1514
     },
-    "submitted_at": "2026-09-14T11:00:00.000Z"
+    "submitted_at": "2026-09-14T11:06:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -1144,7 +1281,7 @@
       "total_varieties": 84,
       "total_units": 3910
     },
-    "submitted_at": "2026-09-14T11:06:00.000Z"
+    "submitted_at": "2026-09-14T11:12:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -1244,7 +1381,7 @@
       "total_varieties": 84,
       "total_units": 5760
     },
-    "submitted_at": "2026-09-14T11:12:00.000Z"
+    "submitted_at": "2026-09-14T11:18:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -1259,9 +1396,9 @@
         "med-p01": 50,
         "med-p02": 50,
         "med-p03": 20,
-        "med-p04": 50,
+        "med-p04": 200,
         "med-p05": 20,
-        "med-p06": 50,
+        "med-p06": 100,
         "med-p07": 50,
         "med-p08": 100,
         "med-p09": 50,
@@ -1286,6 +1423,7 @@
         "med-p28": 50,
         "med-p29": 100,
         "med-p30": 100,
+        "med-p31": 100,
         "med-p32": 100,
         "med-p33": 100,
         "med-p34": 50,
@@ -1340,10 +1478,10 @@
         "med-p83": 100,
         "med-p84": 100
       },
-      "total_varieties": 83,
-      "total_units": 6780
+      "total_varieties": 84,
+      "total_units": 7080
     },
-    "submitted_at": "2026-09-14T11:18:00.000Z"
+    "submitted_at": "2026-09-14T11:24:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -1441,7 +1579,7 @@
       "total_varieties": 82,
       "total_units": 1610
     },
-    "submitted_at": "2026-09-14T11:24:00.000Z"
+    "submitted_at": "2026-09-14T11:30:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -1541,7 +1679,7 @@
       "total_varieties": 84,
       "total_units": 3400
     },
-    "submitted_at": "2026-09-14T11:30:00.000Z"
+    "submitted_at": "2026-09-14T11:36:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -1641,7 +1779,7 @@
       "total_varieties": 84,
       "total_units": 2670
     },
-    "submitted_at": "2026-09-14T11:36:00.000Z"
+    "submitted_at": "2026-09-14T11:42:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -1735,7 +1873,7 @@
       "total_varieties": 78,
       "total_units": 14720
     },
-    "submitted_at": "2026-09-14T11:42:00.000Z"
+    "submitted_at": "2026-09-14T11:48:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -1835,7 +1973,7 @@
       "total_varieties": 84,
       "total_units": 3095
     },
-    "submitted_at": "2026-09-14T11:48:00.000Z"
+    "submitted_at": "2026-09-14T11:54:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -1904,11 +2042,11 @@
         "med-p55": 50,
         "med-p56": 50,
         "med-p57": 50,
-        "med-p58": 50,
+        "med-p58": 100,
         "med-p59": 50,
         "med-p60": 50,
         "med-p61": 50,
-        "med-p62": 50,
+        "med-p62": 100,
         "med-p63": 50,
         "med-p64": 50,
         "med-p65": 50,
@@ -1933,9 +2071,9 @@
         "med-p84": 50
       },
       "total_varieties": 84,
-      "total_units": 4320
+      "total_units": 4420
     },
-    "submitted_at": "2026-09-14T11:54:00.000Z"
+    "submitted_at": "2026-09-14T12:00:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -2033,7 +2171,7 @@
       "total_varieties": 82,
       "total_units": 6730
     },
-    "submitted_at": "2026-09-14T12:00:00.000Z"
+    "submitted_at": "2026-09-14T12:06:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -2133,7 +2271,7 @@
       "total_varieties": 84,
       "total_units": 4630
     },
-    "submitted_at": "2026-09-14T12:06:00.000Z"
+    "submitted_at": "2026-09-14T12:12:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -2233,7 +2371,7 @@
       "total_varieties": 84,
       "total_units": 258000
     },
-    "submitted_at": "2026-09-14T12:12:00.000Z"
+    "submitted_at": "2026-09-14T12:18:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -2333,7 +2471,7 @@
       "total_varieties": 84,
       "total_units": 59350
     },
-    "submitted_at": "2026-09-14T12:18:00.000Z"
+    "submitted_at": "2026-09-14T12:24:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -2433,7 +2571,207 @@
       "total_varieties": 84,
       "total_units": 5990
     },
-    "submitted_at": "2026-09-14T12:24:00.000Z"
+    "submitted_at": "2026-09-14T12:30:00.000Z"
+  },
+  {
+    "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
+    "hospital_id": "5fe0fe55-6c68-4b50-8777-a91474510dca",
+    "hospital_name": "Sediya",
+    "officer_name": "In-Charge Medical Officer",
+    "response_data": {
+      "type": "medicine_drive_submission",
+      "drive_title": "Patent Medicine List 1",
+      "hospital_uid": "DDN028",
+      "quantities": {
+        "med-p01": 50,
+        "med-p02": 20,
+        "med-p03": 50,
+        "med-p04": 60,
+        "med-p05": 30,
+        "med-p06": 80,
+        "med-p07": 10,
+        "med-p08": 100,
+        "med-p09": 40,
+        "med-p10": 20,
+        "med-p11": 50,
+        "med-p12": 100,
+        "med-p13": 40,
+        "med-p14": 50,
+        "med-p15": 80,
+        "med-p16": 50,
+        "med-p17": 40,
+        "med-p18": 100,
+        "med-p19": 50,
+        "med-p20": 80,
+        "med-p21": 100,
+        "med-p22": 100,
+        "med-p23": 40,
+        "med-p24": 50,
+        "med-p25": 50,
+        "med-p26": 80,
+        "med-p27": 20,
+        "med-p28": 50,
+        "med-p29": 50,
+        "med-p30": 40,
+        "med-p31": 50,
+        "med-p32": 50,
+        "med-p33": 80,
+        "med-p34": 100,
+        "med-p35": 50,
+        "med-p36": 50,
+        "med-p37": 50,
+        "med-p38": 80,
+        "med-p39": 100,
+        "med-p40": 100,
+        "med-p41": 50,
+        "med-p42": 40,
+        "med-p43": 50,
+        "med-p44": 50,
+        "med-p45": 100,
+        "med-p46": 100,
+        "med-p47": 50,
+        "med-p48": 60,
+        "med-p49": 50,
+        "med-p50": 50,
+        "med-p51": 40,
+        "med-p52": 50,
+        "med-p53": 50,
+        "med-p54": 40,
+        "med-p55": 60,
+        "med-p56": 40,
+        "med-p57": 40,
+        "med-p58": 50,
+        "med-p59": 70,
+        "med-p60": 80,
+        "med-p61": 50,
+        "med-p62": 70,
+        "med-p63": 50,
+        "med-p64": 60,
+        "med-p65": 80,
+        "med-p66": 80,
+        "med-p67": 80,
+        "med-p68": 70,
+        "med-p69": 80,
+        "med-p70": 100,
+        "med-p71": 80,
+        "med-p72": 80,
+        "med-p73": 40,
+        "med-p74": 40,
+        "med-p75": 100,
+        "med-p76": 100,
+        "med-p77": 40,
+        "med-p78": 50,
+        "med-p79": 100,
+        "med-p80": 100,
+        "med-p81": 40,
+        "med-p82": 40,
+        "med-p83": 40,
+        "med-p84": 50
+      },
+      "total_varieties": 84,
+      "total_units": 5130
+    },
+    "submitted_at": "2026-09-14T12:36:00.000Z"
+  },
+  {
+    "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
+    "hospital_id": "d908d4a6-05aa-4807-ac05-436848bad72e",
+    "hospital_name": "Deu",
+    "officer_name": "In-Charge Medical Officer",
+    "response_data": {
+      "type": "medicine_drive_submission",
+      "drive_title": "Patent Medicine List 1",
+      "hospital_uid": "DDN029",
+      "quantities": {
+        "med-p01": 30,
+        "med-p02": 20,
+        "med-p03": 40,
+        "med-p04": 80,
+        "med-p05": 40,
+        "med-p06": 100,
+        "med-p07": 40,
+        "med-p08": 150,
+        "med-p09": 150,
+        "med-p10": 100,
+        "med-p11": 150,
+        "med-p12": 120,
+        "med-p13": 80,
+        "med-p14": 150,
+        "med-p15": 150,
+        "med-p16": 120,
+        "med-p17": 80,
+        "med-p18": 60,
+        "med-p19": 40,
+        "med-p20": 40,
+        "med-p21": 80,
+        "med-p22": 100,
+        "med-p23": 200,
+        "med-p24": 200,
+        "med-p25": 200,
+        "med-p26": 130,
+        "med-p27": 30,
+        "med-p28": 30,
+        "med-p29": 150,
+        "med-p30": 70,
+        "med-p31": 60,
+        "med-p32": 50,
+        "med-p33": 40,
+        "med-p34": 80,
+        "med-p35": 60,
+        "med-p36": 20,
+        "med-p37": 30,
+        "med-p38": 60,
+        "med-p39": 80,
+        "med-p40": 30,
+        "med-p41": 30,
+        "med-p42": 60,
+        "med-p43": 30,
+        "med-p44": 40,
+        "med-p45": 100,
+        "med-p46": 80,
+        "med-p47": 50,
+        "med-p48": 30,
+        "med-p49": 60,
+        "med-p50": 20,
+        "med-p51": 50,
+        "med-p52": 30,
+        "med-p53": 30,
+        "med-p54": 30,
+        "med-p55": 50,
+        "med-p56": 50,
+        "med-p57": 40,
+        "med-p58": 40,
+        "med-p59": 70,
+        "med-p60": 100,
+        "med-p61": 70,
+        "med-p62": 40,
+        "med-p63": 40,
+        "med-p64": 100,
+        "med-p65": 80,
+        "med-p66": 60,
+        "med-p67": 40,
+        "med-p68": 30,
+        "med-p69": 50,
+        "med-p70": 100,
+        "med-p71": 50,
+        "med-p72": 60,
+        "med-p73": 30,
+        "med-p74": 40,
+        "med-p75": 60,
+        "med-p76": 40,
+        "med-p77": 40,
+        "med-p78": 30,
+        "med-p79": 100,
+        "med-p80": 100,
+        "med-p81": 50,
+        "med-p82": 60,
+        "med-p83": 50,
+        "med-p84": 60
+      },
+      "total_varieties": 84,
+      "total_units": 5810
+    },
+    "submitted_at": "2026-09-14T12:42:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -2533,7 +2871,7 @@
       "total_varieties": 84,
       "total_units": 2360
     },
-    "submitted_at": "2026-09-14T12:30:00.000Z"
+    "submitted_at": "2026-09-14T12:48:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -2632,7 +2970,7 @@
       "total_varieties": 83,
       "total_units": 5410
     },
-    "submitted_at": "2026-09-14T12:36:00.000Z"
+    "submitted_at": "2026-09-14T12:54:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -2732,7 +3070,7 @@
       "total_varieties": 84,
       "total_units": 5505
     },
-    "submitted_at": "2026-09-14T12:42:00.000Z"
+    "submitted_at": "2026-09-14T13:00:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -2832,7 +3170,7 @@
       "total_varieties": 84,
       "total_units": 3400
     },
-    "submitted_at": "2026-09-14T12:48:00.000Z"
+    "submitted_at": "2026-09-14T13:06:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -2932,7 +3270,7 @@
       "total_varieties": 84,
       "total_units": 72350
     },
-    "submitted_at": "2026-09-14T12:54:00.000Z"
+    "submitted_at": "2026-09-14T13:12:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -3031,7 +3369,7 @@
       "total_varieties": 83,
       "total_units": 2280
     },
-    "submitted_at": "2026-09-14T13:00:00.000Z"
+    "submitted_at": "2026-09-14T13:18:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -3105,7 +3443,7 @@
       "total_varieties": 58,
       "total_units": 1440
     },
-    "submitted_at": "2026-09-14T13:06:00.000Z"
+    "submitted_at": "2026-09-14T13:24:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -3205,7 +3543,7 @@
       "total_varieties": 84,
       "total_units": 1985
     },
-    "submitted_at": "2026-09-14T13:12:00.000Z"
+    "submitted_at": "2026-09-14T13:30:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -3305,7 +3643,7 @@
       "total_varieties": 84,
       "total_units": 2345
     },
-    "submitted_at": "2026-09-14T13:18:00.000Z"
+    "submitted_at": "2026-09-14T13:36:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -3405,7 +3743,7 @@
       "total_varieties": 84,
       "total_units": 1915
     },
-    "submitted_at": "2026-09-14T13:24:00.000Z"
+    "submitted_at": "2026-09-14T13:42:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -3505,7 +3843,7 @@
       "total_varieties": 84,
       "total_units": 4700
     },
-    "submitted_at": "2026-09-14T13:30:00.000Z"
+    "submitted_at": "2026-09-14T13:48:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -3605,7 +3943,7 @@
       "total_varieties": 84,
       "total_units": 84000
     },
-    "submitted_at": "2026-09-14T13:36:00.000Z"
+    "submitted_at": "2026-09-14T13:54:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -3617,94 +3955,95 @@
       "drive_title": "Patent Medicine List 1",
       "hospital_uid": "DDN043",
       "quantities": {
-        "med-p01": 20,
-        "med-p02": 20,
-        "med-p03": 25,
-        "med-p04": 20,
-        "med-p05": 25,
-        "med-p06": 40,
-        "med-p07": 40,
-        "med-p08": 20,
-        "med-p09": 20,
-        "med-p10": 25,
-        "med-p11": 25,
-        "med-p12": 25,
-        "med-p13": 25,
-        "med-p14": 20,
-        "med-p15": 20,
-        "med-p16": 25,
-        "med-p17": 25,
-        "med-p18": 50,
-        "med-p19": 50,
-        "med-p20": 40,
-        "med-p21": 40,
-        "med-p22": 40,
-        "med-p23": 40,
-        "med-p24": 40,
-        "med-p25": 25,
-        "med-p26": 25,
-        "med-p27": 30,
-        "med-p28": 30,
-        "med-p29": 25,
-        "med-p30": 25,
-        "med-p31": 25,
-        "med-p32": 50,
-        "med-p33": 50,
-        "med-p34": 50,
-        "med-p35": 25,
-        "med-p36": 25,
-        "med-p37": 25,
-        "med-p38": 50,
-        "med-p39": 50,
-        "med-p40": 50,
-        "med-p41": 50,
-        "med-p42": 50,
-        "med-p43": 50,
-        "med-p44": 50,
-        "med-p45": 40,
-        "med-p46": 50,
-        "med-p47": 50,
-        "med-p48": 50,
-        "med-p49": 50,
-        "med-p50": 40,
-        "med-p51": 40,
-        "med-p52": 40,
-        "med-p53": 40,
-        "med-p54": 40,
-        "med-p55": 50,
-        "med-p56": 50,
-        "med-p57": 50,
-        "med-p58": 50,
-        "med-p59": 50,
-        "med-p60": 50,
-        "med-p61": 50,
-        "med-p62": 58,
-        "med-p63": 50,
-        "med-p64": 100,
-        "med-p65": 50,
-        "med-p66": 50,
-        "med-p67": 40,
-        "med-p68": 40,
-        "med-p69": 40,
-        "med-p70": 40,
-        "med-p71": 40,
-        "med-p72": 40,
-        "med-p73": 40,
-        "med-p74": 40,
-        "med-p76": 40,
-        "med-p77": 50,
-        "med-p78": 50,
-        "med-p79": 50,
-        "med-p80": 50,
-        "med-p81": 50,
-        "med-p82": 50,
-        "med-p83": 50,
-        "med-p84": 50
+        "med-p01": 70,
+        "med-p02": 50,
+        "med-p03": 55,
+        "med-p04": 70,
+        "med-p05": 55,
+        "med-p06": 90,
+        "med-p07": 90,
+        "med-p08": 70,
+        "med-p09": 70,
+        "med-p10": 55,
+        "med-p11": 75,
+        "med-p12": 75,
+        "med-p13": 55,
+        "med-p14": 70,
+        "med-p15": 40,
+        "med-p16": 55,
+        "med-p17": 75,
+        "med-p18": 60,
+        "med-p19": 100,
+        "med-p20": 50,
+        "med-p21": 70,
+        "med-p22": 65,
+        "med-p23": 140,
+        "med-p24": 140,
+        "med-p25": 125,
+        "med-p26": 125,
+        "med-p27": 80,
+        "med-p28": 60,
+        "med-p29": 125,
+        "med-p30": 125,
+        "med-p31": 55,
+        "med-p32": 100,
+        "med-p33": 80,
+        "med-p34": 100,
+        "med-p35": 75,
+        "med-p36": 75,
+        "med-p37": 75,
+        "med-p38": 80,
+        "med-p39": 100,
+        "med-p40": 100,
+        "med-p41": 80,
+        "med-p42": 150,
+        "med-p43": 80,
+        "med-p44": 60,
+        "med-p45": 60,
+        "med-p46": 70,
+        "med-p47": 80,
+        "med-p48": 60,
+        "med-p49": 80,
+        "med-p50": 50,
+        "med-p51": 55,
+        "med-p52": 65,
+        "med-p53": 55,
+        "med-p54": 50,
+        "med-p55": 75,
+        "med-p56": 60,
+        "med-p57": 65,
+        "med-p58": 150,
+        "med-p59": 100,
+        "med-p60": 150,
+        "med-p61": 100,
+        "med-p62": 108,
+        "med-p63": 75,
+        "med-p64": 150,
+        "med-p65": 100,
+        "med-p66": 100,
+        "med-p67": 60,
+        "med-p68": 70,
+        "med-p69": 70,
+        "med-p70": 70,
+        "med-p71": 70,
+        "med-p72": 90,
+        "med-p73": 90,
+        "med-p74": 65,
+        "med-p75": 30,
+        "med-p76": 90,
+        "med-p77": 80,
+        "med-p78": 60,
+        "med-p79": 150,
+        "med-p80": 150,
+        "med-p81": 150,
+        "med-p82": 100,
+        "med-p83": 100,
+        "med-p84": 60
       },
-      "total_varieties": 83,
-      "total_units": 3338
+      "total_varieties": 84,
+      "total_units": 7008
     },
-    "submitted_at": "2026-09-14T13:42:00.000Z"
+    "submitted_at": "2026-09-14T14:00:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -3804,7 +4143,99 @@
       "total_varieties": 84,
       "total_units": 62700
     },
-    "submitted_at": "2026-09-14T13:48:00.000Z"
+    "submitted_at": "2026-09-14T14:06:00.000Z"
+  },
+  {
+    "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
+    "hospital_id": "f5d67010-3d8a-423b-ab0d-0de1382f2dbb",
+    "hospital_name": "Rajbhawan",
+    "officer_name": "In-Charge Medical Officer",
+    "response_data": {
+      "type": "medicine_drive_submission",
+      "drive_title": "Patent Medicine List 1",
+      "hospital_uid": "DDN045",
+      "quantities": {
+        "med-p01": 50,
+        "med-p02": 50,
+        "med-p03": 40,
+        "med-p04": 100,
+        "med-p05": 50,
+        "med-p06": 100,
+        "med-p07": 50,
+        "med-p08": 200,
+        "med-p09": 100,
+        "med-p10": 100,
+        "med-p11": 50,
+        "med-p12": 150,
+        "med-p13": 100,
+        "med-p14": 200,
+        "med-p15": 100,
+        "med-p16": 100,
+        "med-p17": 50,
+        "med-p18": 100,
+        "med-p19": 50,
+        "med-p20": 100,
+        "med-p21": 200,
+        "med-p22": 100,
+        "med-p23": 100,
+        "med-p24": 200,
+        "med-p25": 200,
+        "med-p26": 200,
+        "med-p27": 30,
+        "med-p28": 50,
+        "med-p29": 50,
+        "med-p31": 50,
+        "med-p32": 100,
+        "med-p33": 50,
+        "med-p36": 200,
+        "med-p37": 100,
+        "med-p38": 150,
+        "med-p39": 100,
+        "med-p40": 100,
+        "med-p41": 50,
+        "med-p42": 100,
+        "med-p43": 100,
+        "med-p44": 100,
+        "med-p45": 50,
+        "med-p46": 50,
+        "med-p47": 50,
+        "med-p48": 50,
+        "med-p49": 30,
+        "med-p51": 50,
+        "med-p52": 50,
+        "med-p53": 100,
+        "med-p54": 300,
+        "med-p56": 20,
+        "med-p58": 50,
+        "med-p59": 50,
+        "med-p60": 50,
+        "med-p61": 50,
+        "med-p62": 50,
+        "med-p64": 100,
+        "med-p65": 100,
+        "med-p66": 100,
+        "med-p67": 50,
+        "med-p68": 50,
+        "med-p69": 100,
+        "med-p70": 100,
+        "med-p71": 100,
+        "med-p72": 50,
+        "med-p73": 100,
+        "med-p74": 50,
+        "med-p75": 200,
+        "med-p76": 50,
+        "med-p77": 100,
+        "med-p79": 100,
+        "med-p80": 100,
+        "med-p81": 30,
+        "med-p82": 50,
+        "med-p83": 50,
+        "med-p84": 50
+      },
+      "total_varieties": 76,
+      "total_units": 6800
+    },
+    "submitted_at": "2026-09-14T14:12:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -3904,7 +4335,7 @@
       "total_varieties": 84,
       "total_units": 4020
     },
-    "submitted_at": "2026-09-14T13:54:00.000Z"
+    "submitted_at": "2026-09-14T14:18:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4003,7 +4434,107 @@
       "total_varieties": 83,
       "total_units": 6695
     },
-    "submitted_at": "2026-09-14T14:00:00.000Z"
+    "submitted_at": "2026-09-14T14:24:00.000Z"
+  },
+  {
+    "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
+    "hospital_id": "8329dd84-851b-43d0-be39-7593badcfb25",
+    "hospital_name": "Kandoli",
+    "officer_name": "In-Charge Medical Officer",
+    "response_data": {
+      "type": "medicine_drive_submission",
+      "drive_title": "Patent Medicine List 1",
+      "hospital_uid": "DDN048",
+      "quantities": {
+        "med-p01": 100,
+        "med-p02": 100,
+        "med-p03": 100,
+        "med-p04": 100,
+        "med-p05": 500,
+        "med-p06": 500,
+        "med-p07": 100,
+        "med-p08": 100,
+        "med-p09": 100,
+        "med-p10": 100,
+        "med-p11": 200,
+        "med-p12": 100,
+        "med-p13": 100,
+        "med-p14": 200,
+        "med-p15": 100,
+        "med-p16": 50,
+        "med-p17": 50,
+        "med-p18": 100,
+        "med-p19": 100,
+        "med-p20": 50,
+        "med-p21": 100,
+        "med-p22": 100,
+        "med-p23": 100,
+        "med-p24": 300,
+        "med-p25": 200,
+        "med-p26": 100,
+        "med-p27": 50,
+        "med-p28": 100,
+        "med-p29": 100,
+        "med-p30": 50,
+        "med-p31": 100,
+        "med-p32": 100,
+        "med-p33": 100,
+        "med-p34": 100,
+        "med-p35": 100,
+        "med-p36": 100,
+        "med-p37": 100,
+        "med-p38": 100,
+        "med-p39": 100,
+        "med-p40": 100,
+        "med-p41": 100,
+        "med-p42": 100,
+        "med-p43": 50,
+        "med-p44": 100,
+        "med-p45": 200,
+        "med-p46": 100,
+        "med-p47": 50,
+        "med-p48": 50,
+        "med-p49": 100,
+        "med-p50": 50,
+        "med-p51": 100,
+        "med-p52": 200,
+        "med-p53": 100,
+        "med-p54": 100,
+        "med-p55": 50,
+        "med-p56": 50,
+        "med-p57": 50,
+        "med-p58": 100,
+        "med-p59": 350,
+        "med-p60": 100,
+        "med-p61": 100,
+        "med-p62": 50,
+        "med-p63": 100,
+        "med-p64": 100,
+        "med-p65": 200,
+        "med-p66": 100,
+        "med-p67": 50,
+        "med-p68": 100,
+        "med-p69": 50,
+        "med-p70": 50,
+        "med-p71": 100,
+        "med-p72": 500,
+        "med-p73": 50,
+        "med-p74": 50,
+        "med-p75": 100,
+        "med-p76": 100,
+        "med-p77": 50,
+        "med-p78": 50,
+        "med-p79": 200,
+        "med-p80": 100,
+        "med-p81": 100,
+        "med-p82": 50,
+        "med-p83": 100,
+        "med-p84": 200
+      },
+      "total_varieties": 84,
+      "total_units": 9800
+    },
+    "submitted_at": "2026-09-14T14:30:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4103,7 +4634,7 @@
       "total_varieties": 84,
       "total_units": 1985
     },
-    "submitted_at": "2026-09-14T14:06:00.000Z"
+    "submitted_at": "2026-09-14T14:36:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4188,7 +4719,7 @@
       "total_varieties": 69,
       "total_units": 1299
     },
-    "submitted_at": "2026-09-14T14:12:00.000Z"
+    "submitted_at": "2026-09-14T14:42:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4254,7 +4785,7 @@
       "total_varieties": 50,
       "total_units": 1725
     },
-    "submitted_at": "2026-09-14T14:18:00.000Z"
+    "submitted_at": "2026-09-14T14:48:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4354,7 +4885,7 @@
       "total_varieties": 84,
       "total_units": 3610
     },
-    "submitted_at": "2026-09-14T14:24:00.000Z"
+    "submitted_at": "2026-09-14T14:54:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4452,7 +4983,7 @@
       "total_varieties": 82,
       "total_units": 3890
     },
-    "submitted_at": "2026-09-14T14:30:00.000Z"
+    "submitted_at": "2026-09-14T15:00:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4552,7 +5083,7 @@
       "total_varieties": 84,
       "total_units": 26800
     },
-    "submitted_at": "2026-09-14T14:36:00.000Z"
+    "submitted_at": "2026-09-14T15:06:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4635,7 +5166,7 @@
       "total_varieties": 67,
       "total_units": 8950
     },
-    "submitted_at": "2026-09-14T14:42:00.000Z"
+    "submitted_at": "2026-09-14T15:12:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4715,7 +5246,99 @@
       "total_varieties": 64,
       "total_units": 560
     },
-    "submitted_at": "2026-09-14T14:48:00.000Z"
+    "submitted_at": "2026-09-14T15:18:00.000Z"
+  },
+  {
+    "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
+    "hospital_id": "a99faa18-ab05-418b-8d00-fba8f0828363",
+    "hospital_name": "Bhataad",
+    "officer_name": "In-Charge Medical Officer",
+    "response_data": {
+      "type": "medicine_drive_submission",
+      "drive_title": "Patent Medicine List 1",
+      "hospital_uid": "DDN057",
+      "quantities": {
+        "med-p01": 10,
+        "med-p02": 10,
+        "med-p03": 15,
+        "med-p04": 10,
+        "med-p05": 5,
+        "med-p07": 10,
+        "med-p08": 10,
+        "med-p09": 15,
+        "med-p10": 15,
+        "med-p11": 15,
+        "med-p12": 15,
+        "med-p13": 5,
+        "med-p14": 15,
+        "med-p15": 10,
+        "med-p17": 5,
+        "med-p18": 10,
+        "med-p19": 10,
+        "med-p20": 5,
+        "med-p21": 10,
+        "med-p22": 15,
+        "med-p23": 25,
+        "med-p24": 25,
+        "med-p25": 25,
+        "med-p26": 15,
+        "med-p27": 15,
+        "med-p28": 15,
+        "med-p29": 15,
+        "med-p30": 10,
+        "med-p31": 10,
+        "med-p32": 10,
+        "med-p33": 10,
+        "med-p34": 10,
+        "med-p35": 15,
+        "med-p36": 20,
+        "med-p37": 10,
+        "med-p38": 10,
+        "med-p39": 15,
+        "med-p40": 10,
+        "med-p41": 5,
+        "med-p42": 10,
+        "med-p43": 10,
+        "med-p44": 5,
+        "med-p45": 5,
+        "med-p46": 5,
+        "med-p47": 5,
+        "med-p48": 5,
+        "med-p51": 5,
+        "med-p53": 5,
+        "med-p54": 5,
+        "med-p55": 5,
+        "med-p57": 5,
+        "med-p58": 5,
+        "med-p59": 10,
+        "med-p60": 15,
+        "med-p62": 5,
+        "med-p63": 5,
+        "med-p64": 25,
+        "med-p65": 25,
+        "med-p66": 25,
+        "med-p67": 5,
+        "med-p68": 10,
+        "med-p69": 10,
+        "med-p70": 10,
+        "med-p71": 5,
+        "med-p72": 15,
+        "med-p73": 5,
+        "med-p74": 10,
+        "med-p75": 10,
+        "med-p76": 15,
+        "med-p77": 5,
+        "med-p79": 50,
+        "med-p80": 5,
+        "med-p81": 15,
+        "med-p82": 5,
+        "med-p83": 5,
+        "med-p84": 10
+      },
+      "total_varieties": 76,
+      "total_units": 860
+    },
+    "submitted_at": "2026-09-14T15:24:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4810,7 +5433,7 @@
       "total_varieties": 79,
       "total_units": 2309
     },
-    "submitted_at": "2026-09-14T14:54:00.000Z"
+    "submitted_at": "2026-09-14T15:30:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -4908,7 +5531,7 @@
       "total_varieties": 82,
       "total_units": 2529
     },
-    "submitted_at": "2026-09-14T15:00:00.000Z"
+    "submitted_at": "2026-09-14T15:36:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5007,7 +5630,7 @@
       "total_varieties": 83,
       "total_units": 1225
     },
-    "submitted_at": "2026-09-14T15:06:00.000Z"
+    "submitted_at": "2026-09-14T15:42:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5100,7 +5723,7 @@
       "total_varieties": 77,
       "total_units": 1335
     },
-    "submitted_at": "2026-09-14T15:12:00.000Z"
+    "submitted_at": "2026-09-14T15:48:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5200,7 +5823,7 @@
       "total_varieties": 84,
       "total_units": 1520
     },
-    "submitted_at": "2026-09-14T15:18:00.000Z"
+    "submitted_at": "2026-09-14T15:54:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5288,7 +5911,94 @@
       "total_varieties": 72,
       "total_units": 2540
     },
-    "submitted_at": "2026-09-14T15:24:00.000Z"
+    "submitted_at": "2026-09-14T16:00:00.000Z"
+  },
+  {
+    "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
+    "hospital_id": "e0fc0a69-41df-491a-afd0-48ec0b76d86c",
+    "hospital_name": "Nahikala",
+    "officer_name": "In-Charge Medical Officer",
+    "response_data": {
+      "type": "medicine_drive_submission",
+      "drive_title": "Patent Medicine List 1",
+      "hospital_uid": "DDN065",
+      "quantities": {
+        "med-p01": 20,
+        "med-p02": 5,
+        "med-p03": 20,
+        "med-p04": 20,
+        "med-p05": 10,
+        "med-p06": 10,
+        "med-p07": 10,
+        "med-p08": 20,
+        "med-p09": 5,
+        "med-p12": 10,
+        "med-p13": 5,
+        "med-p14": 20,
+        "med-p15": 5,
+        "med-p16": 10,
+        "med-p17": 20,
+        "med-p21": 10,
+        "med-p22": 10,
+        "med-p23": 20,
+        "med-p24": 30,
+        "med-p25": 30,
+        "med-p26": 20,
+        "med-p27": 20,
+        "med-p28": 5,
+        "med-p29": 10,
+        "med-p30": 10,
+        "med-p31": 20,
+        "med-p32": 30,
+        "med-p34": 10,
+        "med-p36": 10,
+        "med-p37": 5,
+        "med-p38": 20,
+        "med-p39": 20,
+        "med-p40": 5,
+        "med-p41": 10,
+        "med-p42": 10,
+        "med-p43": 20,
+        "med-p44": 20,
+        "med-p47": 5,
+        "med-p48": 20,
+        "med-p49": 10,
+        "med-p50": 5,
+        "med-p51": 5,
+        "med-p52": 5,
+        "med-p53": 5,
+        "med-p55": 5,
+        "med-p56": 5,
+        "med-p57": 10,
+        "med-p58": 10,
+        "med-p59": 30,
+        "med-p60": 30,
+        "med-p61": 10,
+        "med-p62": 5,
+        "med-p63": 5,
+        "med-p64": 30,
+        "med-p66": 5,
+        "med-p68": 20,
+        "med-p69": 20,
+        "med-p70": 20,
+        "med-p71": 10,
+        "med-p72": 5,
+        "med-p73": 10,
+        "med-p74": 5,
+        "med-p75": 50,
+        "med-p76": 10,
+        "med-p77": 10,
+        "med-p78": 5,
+        "med-p79": 10,
+        "med-p81": 10,
+        "med-p82": 10,
+        "med-p83": 10,
+        "med-p84": 20
+      },
+      "total_varieties": 71,
+      "total_units": 960
+    },
+    "submitted_at": "2026-09-14T16:06:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5384,7 +6094,7 @@
       "total_varieties": 80,
       "total_units": 1540
     },
-    "submitted_at": "2026-09-14T15:30:00.000Z"
+    "submitted_at": "2026-09-14T16:12:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5455,7 +6165,7 @@
       "total_varieties": 55,
       "total_units": 795
     },
-    "submitted_at": "2026-09-14T15:36:00.000Z"
+    "submitted_at": "2026-09-14T16:18:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5537,7 +6247,7 @@
       "total_varieties": 66,
       "total_units": 546
     },
-    "submitted_at": "2026-09-14T15:42:00.000Z"
+    "submitted_at": "2026-09-14T16:24:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5618,7 +6328,7 @@
       "total_varieties": 65,
       "total_units": 588
     },
-    "submitted_at": "2026-09-14T15:48:00.000Z"
+    "submitted_at": "2026-09-14T16:30:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5717,7 +6427,7 @@
       "total_varieties": 83,
       "total_units": 599
     },
-    "submitted_at": "2026-09-14T15:54:00.000Z"
+    "submitted_at": "2026-09-14T16:36:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5817,7 +6527,84 @@
       "total_varieties": 84,
       "total_units": 1518
     },
-    "submitted_at": "2026-09-14T16:00:00.000Z"
+    "submitted_at": "2026-09-14T16:42:00.000Z"
+  },
+  {
+    "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
+    "hospital_id": "48e1d24e-2ffb-4b7a-9baf-ac5dc99a09f7",
+    "hospital_name": "Hatal",
+    "officer_name": "In-Charge Medical Officer",
+    "response_data": {
+      "type": "medicine_drive_submission",
+      "drive_title": "Patent Medicine List 1",
+      "hospital_uid": "DDN072",
+      "quantities": {
+        "med-p02": 20,
+        "med-p04": 10,
+        "med-p05": 10,
+        "med-p06": 10,
+        "med-p08": 20,
+        "med-p09": 15,
+        "med-p10": 10,
+        "med-p11": 10,
+        "med-p12": 20,
+        "med-p14": 10,
+        "med-p15": 20,
+        "med-p16": 15,
+        "med-p17": 20,
+        "med-p19": 20,
+        "med-p20": 20,
+        "med-p21": 10,
+        "med-p22": 20,
+        "med-p23": 20,
+        "med-p24": 30,
+        "med-p25": 20,
+        "med-p26": 20,
+        "med-p29": 20,
+        "med-p30": 15,
+        "med-p31": 20,
+        "med-p33": 20,
+        "med-p35": 10,
+        "med-p36": 20,
+        "med-p38": 20,
+        "med-p39": 18,
+        "med-p41": 20,
+        "med-p43": 15,
+        "med-p45": 30,
+        "med-p46": 15,
+        "med-p47": 10,
+        "med-p48": 10,
+        "med-p49": 20,
+        "med-p51": 15,
+        "med-p53": 15,
+        "med-p54": 10,
+        "med-p55": 10,
+        "med-p56": 15,
+        "med-p57": 20,
+        "med-p58": 20,
+        "med-p59": 15,
+        "med-p60": 20,
+        "med-p61": 20,
+        "med-p63": 15,
+        "med-p64": 20,
+        "med-p65": 20,
+        "med-p66": 15,
+        "med-p67": 10,
+        "med-p68": 20,
+        "med-p69": 20,
+        "med-p70": 20,
+        "med-p72": 20,
+        "med-p74": 10,
+        "med-p75": 20,
+        "med-p76": 20,
+        "med-p79": 40,
+        "med-p80": 10,
+        "med-p84": 20
+      },
+      "total_varieties": 61,
+      "total_units": 1053
+    },
+    "submitted_at": "2026-09-14T16:48:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -5917,7 +6704,7 @@
       "total_varieties": 84,
       "total_units": 10940
     },
-    "submitted_at": "2026-09-14T16:06:00.000Z"
+    "submitted_at": "2026-09-14T16:54:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6017,7 +6804,7 @@
       "total_varieties": 84,
       "total_units": 1214
     },
-    "submitted_at": "2026-09-14T16:12:00.000Z"
+    "submitted_at": "2026-09-14T17:00:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6117,7 +6904,7 @@
       "total_varieties": 84,
       "total_units": 6710
     },
-    "submitted_at": "2026-09-14T16:18:00.000Z"
+    "submitted_at": "2026-09-14T17:06:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6129,94 +6916,95 @@
       "drive_title": "Patent Medicine List 1",
       "hospital_uid": "DDN077",
       "quantities": {
-        "med-p01": 1000,
-        "med-p02": 800,
-        "med-p04": 1000,
-        "med-p05": 700,
-        "med-p06": 1000,
-        "med-p07": 800,
-        "med-p08": 1000,
-        "med-p09": 1000,
-        "med-p10": 700,
-        "med-p11": 800,
-        "med-p12": 800,
-        "med-p13": 200,
-        "med-p14": 1200,
-        "med-p15": 700,
-        "med-p16": 1000,
-        "med-p17": 200,
-        "med-p18": 500,
-        "med-p19": 600,
-        "med-p20": 700,
-        "med-p21": 900,
-        "med-p22": 1200,
-        "med-p23": 1000,
-        "med-p24": 1500,
-        "med-p25": 1000,
-        "med-p26": 1000,
-        "med-p27": 900,
-        "med-p28": 1000,
-        "med-p29": 800,
-        "med-p30": 700,
-        "med-p31": 1200,
-        "med-p32": 800,
-        "med-p33": 1000,
-        "med-p34": 900,
-        "med-p35": 1000,
-        "med-p36": 600,
-        "med-p37": 700,
-        "med-p38": 1200,
-        "med-p39": 1200,
-        "med-p40": 200,
-        "med-p41": 1000,
-        "med-p42": 800,
-        "med-p43": 1000,
-        "med-p44": 1000,
-        "med-p45": 800,
-        "med-p46": 700,
-        "med-p47": 600,
-        "med-p48": 300,
-        "med-p49": 700,
-        "med-p50": 600,
-        "med-p51": 700,
-        "med-p52": 1000,
-        "med-p53": 1000,
-        "med-p54": 800,
-        "med-p55": 1000,
-        "med-p56": 10,
-        "med-p57": 700,
-        "med-p58": 800,
-        "med-p59": 1200,
-        "med-p60": 1000,
-        "med-p61": 1200,
-        "med-p62": 1000,
-        "med-p63": 700,
-        "med-p64": 1200,
-        "med-p65": 1000,
-        "med-p66": 800,
-        "med-p67": 1000,
-        "med-p68": 1200,
-        "med-p69": 1200,
-        "med-p70": 1000,
-        "med-p71": 800,
-        "med-p72": 1200,
-        "med-p73": 900,
-        "med-p74": 1000,
-        "med-p75": 1200,
-        "med-p76": 1500,
-        "med-p77": 800,
-        "med-p78": 700,
-        "med-p79": 1000,
-        "med-p80": 700,
-        "med-p81": 1500,
-        "med-p82": 700,
-        "med-p83": 700,
-        "med-p84": 500
+        "med-p01": 1800,
+        "med-p02": 1300,
+        "med-p03": 800,
+        "med-p04": 1800,
+        "med-p05": 1500,
+        "med-p06": 2000,
+        "med-p07": 1800,
+        "med-p08": 1800,
+        "med-p09": 1800,
+        "med-p10": 1700,
+        "med-p11": 1600,
+        "med-p12": 1800,
+        "med-p13": 1200,
+        "med-p14": 2000,
+        "med-p15": 1500,
+        "med-p16": 1800,
+        "med-p17": 1200,
+        "med-p18": 1300,
+        "med-p19": 1400,
+        "med-p20": 1700,
+        "med-p21": 1900,
+        "med-p22": 2200,
+        "med-p23": 2000,
+        "med-p24": 2500,
+        "med-p25": 2000,
+        "med-p26": 2000,
+        "med-p27": 1900,
+        "med-p28": 2000,
+        "med-p29": 1800,
+        "med-p30": 1700,
+        "med-p31": 2200,
+        "med-p32": 1800,
+        "med-p33": 2000,
+        "med-p34": 1900,
+        "med-p35": 1500,
+        "med-p36": 1100,
+        "med-p37": 1200,
+        "med-p38": 2200,
+        "med-p39": 2200,
+        "med-p40": 1200,
+        "med-p41": 2000,
+        "med-p42": 1800,
+        "med-p43": 2000,
+        "med-p44": 2000,
+        "med-p45": 1800,
+        "med-p46": 1700,
+        "med-p47": 1600,
+        "med-p48": 800,
+        "med-p49": 1200,
+        "med-p50": 1100,
+        "med-p51": 1700,
+        "med-p52": 2000,
+        "med-p53": 2000,
+        "med-p54": 1800,
+        "med-p55": 1500,
+        "med-p56": 510,
+        "med-p57": 1500,
+        "med-p58": 1800,
+        "med-p59": 2200,
+        "med-p60": 2000,
+        "med-p61": 2200,
+        "med-p62": 2000,
+        "med-p63": 1700,
+        "med-p64": 2200,
+        "med-p65": 2000,
+        "med-p66": 1800,
+        "med-p67": 1500,
+        "med-p68": 2200,
+        "med-p69": 2200,
+        "med-p70": 2000,
+        "med-p71": 1300,
+        "med-p72": 2200,
+        "med-p73": 1900,
+        "med-p74": 1800,
+        "med-p75": 2200,
+        "med-p76": 2500,
+        "med-p77": 1600,
+        "med-p78": 1700,
+        "med-p79": 2000,
+        "med-p80": 1700,
+        "med-p81": 3000,
+        "med-p82": 1200,
+        "med-p83": 1700,
+        "med-p84": 1500
       },
-      "total_varieties": 83,
-      "total_units": 72710
+      "total_varieties": 84,
+      "total_units": 148210
     },
-    "submitted_at": "2026-09-14T16:24:00.000Z"
+    "submitted_at": "2026-09-14T17:12:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6316,7 +7104,7 @@
       "total_varieties": 84,
       "total_units": 38800
     },
-    "submitted_at": "2026-09-14T16:30:00.000Z"
+    "submitted_at": "2026-09-14T17:18:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6416,7 +7204,7 @@
       "total_varieties": 84,
       "total_units": 11070
     },
-    "submitted_at": "2026-09-14T16:36:00.000Z"
+    "submitted_at": "2026-09-14T17:24:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6516,7 +7304,7 @@
       "total_varieties": 84,
       "total_units": 5290
     },
-    "submitted_at": "2026-09-14T16:42:00.000Z"
+    "submitted_at": "2026-09-14T17:30:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6616,7 +7404,7 @@
       "total_varieties": 84,
       "total_units": 13250
     },
-    "submitted_at": "2026-09-14T16:48:00.000Z"
+    "submitted_at": "2026-09-14T17:36:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6716,7 +7504,7 @@
       "total_varieties": 84,
       "total_units": 6000
     },
-    "submitted_at": "2026-09-14T16:54:00.000Z"
+    "submitted_at": "2026-09-14T17:42:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6734,7 +7522,7 @@
       "total_varieties": 2,
       "total_units": 80
     },
-    "submitted_at": "2026-09-14T17:00:00.000Z"
+    "submitted_at": "2026-09-14T17:48:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6827,7 +7615,7 @@
       "total_varieties": 77,
       "total_units": 5120
     },
-    "submitted_at": "2026-09-14T17:06:00.000Z"
+    "submitted_at": "2026-09-14T17:54:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -6927,7 +7715,7 @@
       "total_varieties": 84,
       "total_units": 5250
     },
-    "submitted_at": "2026-09-14T17:12:00.000Z"
+    "submitted_at": "2026-09-14T18:00:00.000Z"
   },
   {
     "form_id": "afbf6fed-8700-45f7-9fd8-eacbf103a65d",
@@ -7024,6 +7812,6 @@
       "total_varieties": 81,
       "total_units": 4970
     },
-    "submitted_at": "2026-09-14T17:18:00.000Z"
+    "submitted_at": "2026-09-14T18:06:00.000Z"
   }
 ]
