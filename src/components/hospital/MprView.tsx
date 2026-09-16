@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { dbService } from '../../lib/supabase';
 import { MonthlyProgressReport, OtherMprMetrics } from '../../types';
@@ -21,6 +21,8 @@ import {
   Lock,
   BarChart3,
   Sparkles,
+  AlertTriangle,
+  AlertCircle,
 } from 'lucide-react';
 
 export const MprView: React.FC = () => {
@@ -284,6 +286,21 @@ export const MprView: React.FC = () => {
   const totalCampBen = campBeneficiaries.male + campBeneficiaries.female + campBeneficiaries.other + campBeneficiaries.children;
   const totalYogaBen = yogaBeneficiaries.male + yogaBeneficiaries.female + yogaBeneficiaries.other;
 
+  // 38 Disease Totals Computations
+  const totalDiseaseNewCases = useMemo(() => {
+    return MPR_DISEASE_LIST.reduce((sum, d) => sum + (diseaseRecords[d.id]?.new_cases || 0), 0);
+  }, [diseaseRecords]);
+
+  const totalDiseaseOldCases = useMemo(() => {
+    return MPR_DISEASE_LIST.reduce((sum, d) => sum + (diseaseRecords[d.id]?.old_cases || 0), 0);
+  }, [diseaseRecords]);
+
+  const grandTotalDiseaseCases = totalDiseaseNewCases + totalDiseaseOldCases;
+
+  // Validation between 38 Disease Grand Total and Total Combined OPD (New + Old)
+  const isDiseaseOpdMismatch = grandTotalOpd > 0 && grandTotalDiseaseCases !== grandTotalOpd;
+  const diseaseOpdDiff = grandTotalDiseaseCases - grandTotalOpd;
+
   const isSubmitted = Boolean(currentReport);
   const isReadOnly = isSubmitted;
 
@@ -443,6 +460,15 @@ export const MprView: React.FC = () => {
 
     if (grandTotalOpd === 0) {
       setNotification('Please enter the OPD patient counts before submitting the MPR.');
+      return;
+    }
+
+    if (grandTotalDiseaseCases !== grandTotalOpd) {
+      setNotification(
+        `त्रुटि (Validation Error): रोगवार विवरण (38 श्रेणियां) का कुल योग (${grandTotalDiseaseCases}) और कुल OPD संख्या (${grandTotalOpd}) में ${Math.abs(
+          diseaseOpdDiff
+        )} का अंतर है (${diseaseOpdDiff > 0 ? `${diseaseOpdDiff} अधिक` : `${Math.abs(diseaseOpdDiff)} कम`})। दोनों का योग बराबर होना अनिवार्य है। कृपया सही करके पुनः प्रयास करें।`
+      );
       return;
     }
 
@@ -1427,7 +1453,115 @@ export const MprView: React.FC = () => {
                       );
                     })}
                   </tbody>
+                  <tfoot className="sticky bottom-0 bg-slate-900 text-white font-bold border-t-2 border-slate-950 z-10 shadow-lg">
+                    <tr>
+                      <td colSpan={2} className="py-3 px-3 text-right text-xs uppercase tracking-wider text-slate-200">
+                        Grand Total (रोगवार कुल योग - 38 श्रेणियां):
+                      </td>
+                      <td className="py-3 px-3 text-center text-emerald-400 font-extrabold text-sm">
+                        {totalDiseaseNewCases}
+                      </td>
+                      <td className="py-3 px-3 text-center text-teal-400 font-extrabold text-sm">
+                        {totalDiseaseOldCases}
+                      </td>
+                      <td className="py-3 px-3 text-center bg-slate-950 text-amber-400 font-black text-sm">
+                        {grandTotalDiseaseCases}
+                      </td>
+                    </tr>
+                  </tfoot>
                 </table>
+              </div>
+
+              {/* OPD vs Disease Morbidity Reconciliation Box */}
+              <div
+                className={`p-4 rounded-xl border transition-all ${
+                  isDiseaseOpdMismatch
+                    ? 'bg-rose-50/95 border-rose-300 text-rose-950 shadow-xs'
+                    : grandTotalOpd > 0
+                    ? 'bg-emerald-50/95 border-emerald-300 text-emerald-950 shadow-xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-800'
+                }`}
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  {/* Status description */}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      {isDiseaseOpdMismatch ? (
+                        <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 animate-bounce" />
+                      ) : grandTotalOpd > 0 ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                      ) : (
+                        <Clock className="w-5 h-5 text-slate-500 shrink-0" />
+                      )}
+                      <h4 className="text-sm font-black">
+                        {isDiseaseOpdMismatch
+                          ? 'त्रुटि: 38 रोगवार योग एवं कुल OPD संख्या में बेमेल (Count Mismatch - Submission Blocked)'
+                          : grandTotalOpd > 0
+                          ? 'योग सत्यापित: रोगवार विवरण और कुल OPD का मिलान पूर्णतः सफल (Verified)'
+                          : 'OPD मिलान स्थिति (OPD vs Disease Verification)'}
+                      </h4>
+                    </div>
+                    <p className="text-xs text-slate-600 ml-7">
+                      {isDiseaseOpdMismatch ? (
+                        <span className="text-rose-900 font-medium">
+                          शासन के निर्देशानुसार रोगवार 38 श्रेणियों का कुल योग (New + Old) और अस्पताल की कुल OPD (New + Old) <b>एक समान होना अनिवार्य</b> है। बेमेल होने पर MPR सबमिट नहीं हो सकेगा।
+                        </span>
+                      ) : grandTotalOpd > 0 ? (
+                        <span className="text-emerald-900 font-medium">
+                          रोगवार कुल योग ({grandTotalDiseaseCases}) और अस्पताल की कुल OPD संख्या ({grandTotalOpd}) 100% एक समान हैं। रिपोर्ट सबमिट करने हेतु तैयार है।
+                        </span>
+                      ) : (
+                        <span>कृपया पहले ऊपर Section 1 में New एवं Old OPD मरीज़ों की संख्या दर्ज करें।</span>
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Badges comparison */}
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
+                    <div className="bg-white px-3 py-2 rounded-xl border border-slate-200 text-center shadow-2xs">
+                      <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                        38 रोग कुल योग
+                      </span>
+                      <span className="text-sm font-black text-slate-900">{grandTotalDiseaseCases}</span>
+                      <span className="text-[10px] text-slate-500 block">
+                        (नवीन: {totalDiseaseNewCases} | पुरातन: {totalDiseaseOldCases})
+                      </span>
+                    </div>
+
+                    <div className="text-slate-400 font-bold text-lg hidden sm:block">vs</div>
+
+                    <div className="bg-white px-3 py-2 rounded-xl border border-slate-200 text-center shadow-2xs">
+                      <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                        कुल OPD मरीज़
+                      </span>
+                      <span className="text-sm font-black text-emerald-700">{grandTotalOpd}</span>
+                      <span className="text-[10px] text-slate-500 block">
+                        (New: {totalNewOpd} | Old: {totalOldOpd})
+                      </span>
+                    </div>
+
+                    <div
+                      className={`px-3 py-2 rounded-xl font-black text-xs text-center border shadow-2xs min-w-[90px] ${
+                        isDiseaseOpdMismatch
+                          ? 'bg-rose-600 text-white border-rose-700 animate-pulse'
+                          : grandTotalOpd > 0
+                          ? 'bg-emerald-600 text-white border-emerald-700'
+                          : 'bg-slate-200 text-slate-700 border-slate-300'
+                      }`}
+                    >
+                      <span className="text-[10px] font-semibold opacity-90 block">अंतर (Diff)</span>
+                      <span className="text-sm font-black">
+                        {grandTotalOpd === 0
+                          ? '—'
+                          : diseaseOpdDiff === 0
+                          ? '0 (समान)'
+                          : diseaseOpdDiff > 0
+                          ? `+${diseaseOpdDiff} अधिक`
+                          : `${diseaseOpdDiff} कम`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1507,14 +1641,31 @@ export const MprView: React.FC = () => {
                       Locked (Advance Month)
                     </span>
                   ) : (
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition cursor-pointer disabled:opacity-60"
-                    >
-                      <Send className="w-4 h-4" />
-                      <span>{isSubmitting ? 'Submitting Return...' : 'Submit Official MPR'}</span>
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2.5">
+                      {isDiseaseOpdMismatch && (
+                        <span className="px-3 py-2 bg-rose-50 text-rose-700 border border-rose-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs">
+                          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 animate-pulse" />
+                          बेमेल: 38 रोग योग ({grandTotalDiseaseCases}) ≠ कुल OPD ({grandTotalOpd}) [अंतर: {Math.abs(diseaseOpdDiff)}]
+                        </span>
+                      )}
+                      <button
+                        type="submit"
+                        disabled={isSubmitting || isDiseaseOpdMismatch}
+                        className={`px-6 py-2.5 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-md transition ${
+                          isDiseaseOpdMismatch
+                            ? 'bg-slate-400 cursor-not-allowed opacity-75'
+                            : 'bg-emerald-700 hover:bg-emerald-800 hover:shadow-lg cursor-pointer disabled:opacity-60'
+                        }`}
+                        title={
+                          isDiseaseOpdMismatch
+                            ? `रोगवार कुल योग (${grandTotalDiseaseCases}) और कुल OPD (${grandTotalOpd}) में अंतर है। दोनों का योग बराबर होने पर ही सबमिट बटन सक्रिय होगा।`
+                            : 'Submit Official MPR'
+                        }
+                      >
+                        <Send className="w-4 h-4" />
+                        <span>{isSubmitting ? 'Submitting Return...' : 'Submit Official MPR'}</span>
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1715,6 +1866,31 @@ export const MprView: React.FC = () => {
                     );
                   })}
                 </tbody>
+                <tfoot className="sticky bottom-0 bg-slate-900 text-white font-bold border-t-2 border-slate-950 z-10 shadow-lg">
+                  <tr>
+                    <td colSpan={2} className="py-2.5 px-3 text-right text-xs uppercase tracking-wider text-slate-200">
+                      Annual Grand Total (वार्षिक कुल योग - 38 श्रेणियां):
+                    </td>
+                    <td className="py-2.5 px-3 text-center text-emerald-400 font-extrabold text-sm">
+                      {MPR_DISEASE_LIST.reduce(
+                        (acc, d) => acc + (annualReportObj.other_metrics.disease_details?.[d.id]?.new_cases || 0),
+                        0
+                      )}
+                    </td>
+                    <td className="py-2.5 px-3 text-center text-teal-400 font-extrabold text-sm">
+                      {MPR_DISEASE_LIST.reduce(
+                        (acc, d) => acc + (annualReportObj.other_metrics.disease_details?.[d.id]?.old_cases || 0),
+                        0
+                      )}
+                    </td>
+                    <td className="py-2.5 px-3 text-center bg-slate-950 text-amber-400 font-black text-sm">
+                      {MPR_DISEASE_LIST.reduce(
+                        (acc, d) => acc + (annualReportObj.other_metrics.disease_details?.[d.id]?.total_cases || 0),
+                        0
+                      )}
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
 
